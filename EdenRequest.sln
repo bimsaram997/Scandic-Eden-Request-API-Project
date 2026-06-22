@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdenRequest.Api", "EdenRequest.Api\EdenRequest.Api.csproj", "{54BD0FC6-B192-4F1F-9148-341118121C8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdenRequest.Tests", "EdenRequest.Tests\EdenRequest.Tests.csproj", "{BCBD578F-18DA-4DFD-A609-1E4478DC14C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54BD0FC6-B192-4F1F-9148-341118121C8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54BD0FC6-B192-4F1F-9148-341118121C8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54BD0FC6-B192-4F1F-9148-341118121C8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54BD0FC6-B192-4F1F-9148-341118121C8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCBD578F-18DA-4DFD-A609-1E4478DC14C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCBD578F-18DA-4DFD-A609-1E4478DC14C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCBD578F-18DA-4DFD-A609-1E4478DC14C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCBD578F-18DA-4DFD-A609-1E4478DC14C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CECA0C99-28F5-4D71-A27F-7D8F4FDBBFEC}
+	EndGlobalSection
+EndGlobal
