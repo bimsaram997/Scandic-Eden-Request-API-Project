@@ -1,9 +1,12 @@
-﻿namespace EdenRequest.Api.Data
+﻿using System.Text.Json.Serialization;
+
+namespace EdenRequest.Api.Data
 {
     public class ItemCategory
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty; // e.g., "Linen", "Glasses"
+        [JsonIgnore]
         public List<Item> Items { get; set; } = new();
     }
     public class Item
