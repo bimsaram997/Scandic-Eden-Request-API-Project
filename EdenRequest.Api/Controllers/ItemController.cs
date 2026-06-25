@@ -1,4 +1,5 @@
-﻿using EdenRequest.Api.Services;
+﻿using EdenRequest.Api.Data;
+using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EdenRequest.Api.Controllers
@@ -31,7 +32,25 @@ namespace EdenRequest.Api.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [HttpGet("itemsByCategoryId/{categoryId:int}")]
+        public async Task<ActionResult<IEnumerable<Item>>> GetItemsByCategoryId(int categoryId)
+        {
+            try
+            {
+                var items = await _itemService.GetItemsByCategoryIdAsync(categoryId);
+
+                
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
+
+
 
     public record CreateItemDto(string Name, int CategoryId);
 

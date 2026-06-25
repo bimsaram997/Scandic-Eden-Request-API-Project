@@ -57,7 +57,8 @@ namespace EdenRequest.Api.Services
                 EmployeeId = dto.EmployeeId,
                 RoomListId = dto.RoomListId,
                 RoomNumber = string.IsNullOrWhiteSpace(dto.RoomNumber) ? null : dto.RoomNumber,
-                Status = "Pending"
+                Status = "Pending",
+                CheckGeneralRequest  = string.IsNullOrWhiteSpace(dto.RoomNumber) ? true : false
             };
 
             foreach (var item in dto.Items)

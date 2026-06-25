@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260623070401_StatusChangedToString")]
-    partial class StatusChangedToString
+    [Migration("20260623205702_AddPassword")]
+    partial class AddPassword
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,15 @@ namespace EdenRequest.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -49,19 +57,33 @@ namespace EdenRequest.Api.Migrations
                         new
                         {
                             Id = 1,
+                            Email = "mike@gmail.com",
                             Name = "Mika (Cleaner)",
+                            Password = "123",
                             Role = "Housekeeper"
                         },
                         new
                         {
                             Id = 2,
+                            Email = "James@gmail.com",
                             Name = "James (Cleaner)",
+                            Password = "123",
                             Role = "Housekeeper"
                         },
                         new
                         {
                             Id = 3,
+                            Email = "Laura@gmail.com",
                             Name = "Laura (Leader)",
+                            Password = "123",
+                            Role = "TeamLeader"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Email = "Grace@gmail.com",
+                            Name = "Grace (Leader)",
+                            Password = "123",
                             Role = "TeamLeader"
                         });
                 });

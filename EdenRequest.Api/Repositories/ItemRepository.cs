@@ -1,11 +1,12 @@
 ﻿using EdenRequest.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EdenRequest.Api.Repositories
 {
     public interface IItemRepository
     {
         Task<Item> AddItemAsync(Item item);
-        Task<ItemCategory?> GetCategoryByIdAsync(int categoryId);
+        Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId);
     }
 
     public class ItemRepository : IItemRepository
@@ -24,9 +25,14 @@ namespace EdenRequest.Api.Repositories
             return item;
         }
 
-        public async Task<ItemCategory?> GetCategoryByIdAsync(int categoryId)
+        public async Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId)
         {
-            return await _context.ItemCategories.FindAsync(categoryId);
+            return await _context.Items
+        .Include(i => i.Category) // Optional: Loads category details automatically
+        .Where(i => i.ItemCategoryId == categoryId)
+        .ToListAsync();
         }
+
+
     }
 }

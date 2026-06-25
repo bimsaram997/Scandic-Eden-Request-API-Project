@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EdenRequest.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EdenRequest.Api.Data
 {
@@ -26,9 +27,10 @@ namespace EdenRequest.Api.Data
             );
 
             modelBuilder.Entity<Employee>().HasData(
-                new Employee { Id = 1, Name = "Mika (Cleaner)", Role = "Housekeeper" },
-                new Employee { Id = 2, Name = "James (Cleaner)", Role = "Housekeeper" },
-                new Employee { Id = 3, Name = "Laura (Leader)", Role = "TeamLeader" }
+                new Employee { Id = 1, Name = "Mika (Cleaner)", Email = "mike@gmail.com", Password = "123", Role = "Housekeeper" },
+                new Employee { Id = 2, Name = "James (Cleaner)", Email = "James@gmail.com", Password = "123", Role = "Housekeeper" },
+                new Employee { Id = 3, Name = "Laura (Leader)", Email = "Laura@gmail.com", Password = "123", Role = "TeamLeader" },
+                 new Employee { Id = 4, Name = "Grace (Leader)", Email = "Grace@gmail.com", Password = "123", Role = "TeamLeader" }
             );
             modelBuilder.Entity<RequestLine>()
                 .HasOne(l => l.RequestHeader)
@@ -38,3 +40,8 @@ namespace EdenRequest.Api.Data
         }
     }
 }
+
+
+//new Employee { Id = 1, Name = "Mika (Cleaner)", Email = "mike@gmail.com", Password = "123", Role = "Housekeeper" },
+//                new Employee { Id = 2, Name = "James (Cleaner)", Email = "James@gmail.com", Password = "123", Role = "Housekeeper" },
+//                new Employee { Id = 3, Name = "Laura (Leader)", Email = "Laura@gmail.com", Password = "123", Role = "TeamLeader" }

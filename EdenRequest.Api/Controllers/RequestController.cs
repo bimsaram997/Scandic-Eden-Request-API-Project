@@ -1,6 +1,8 @@
 ﻿using EdenRequest.Api.DTO;
+using EdenRequest.Api.Hubs;
 using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace EdenRequest.Api.Controllers
 {
@@ -9,18 +11,22 @@ namespace EdenRequest.Api.Controllers
     public class RequestController : ControllerBase
     {
         private readonly IRequestService _requestService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public RequestController(IRequestService requestService)
+        public RequestController(IRequestService requestService, IHubContext<NotificationHub> hubContext)
         {
             _requestService = requestService;
+            _hubContext = hubContext;
         }
 
-        [HttpPost]
+        [HttpPost("placeBulkRequest")]
         public async Task<IActionResult> Create([FromBody] PlaceBulkRequestDto dto)
         {
             try
             {
                 var result = await _requestService.PlaceRequestAsync(dto);
+                await _hubContext.Clients.Group("ActiveLeadersDashboard")
+                    .SendAsync("NewRequestReceived", result);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -57,6 +63,8 @@ namespace EdenRequest.Api.Controllers
             try
             {
                 var updated = await _requestService.ChangeStatusAsync(id, payload.Status);
+                await _hubContext.Clients.Group($"Employee_{updated.EmployeeId}")
+                    .SendAsync("RequestStatusUpdated", updated);
                 return Ok(updated);
             }
             catch (KeyNotFoundException ex)
