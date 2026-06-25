@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260623205408_SeedEmployeeData")]
+    partial class SeedEmployeeData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,10 +41,6 @@ namespace EdenRequest.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
@@ -56,7 +55,6 @@ namespace EdenRequest.Api.Migrations
                             Id = 1,
                             Email = "mike@gmail.com",
                             Name = "Mika (Cleaner)",
-                            Password = "123",
                             Role = "Housekeeper"
                         },
                         new
@@ -64,7 +62,6 @@ namespace EdenRequest.Api.Migrations
                             Id = 2,
                             Email = "James@gmail.com",
                             Name = "James (Cleaner)",
-                            Password = "123",
                             Role = "Housekeeper"
                         },
                         new
@@ -72,7 +69,6 @@ namespace EdenRequest.Api.Migrations
                             Id = 3,
                             Email = "Laura@gmail.com",
                             Name = "Laura (Leader)",
-                            Password = "123",
                             Role = "TeamLeader"
                         },
                         new
@@ -80,7 +76,6 @@ namespace EdenRequest.Api.Migrations
                             Id = 4,
                             Email = "Grace@gmail.com",
                             Name = "Grace (Leader)",
-                            Password = "123",
                             Role = "TeamLeader"
                         });
                 });
@@ -148,9 +143,6 @@ namespace EdenRequest.Api.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CheckGeneralRequest")
-                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

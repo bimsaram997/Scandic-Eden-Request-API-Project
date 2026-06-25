@@ -5,30 +5,25 @@
 namespace EdenRequest.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class StatusChanged : Migration
+    public partial class CheckGeneralRequest : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<bool>(
-                name: "Status",
+            migrationBuilder.AddColumn<bool>(
+                name: "CheckGeneralRequest",
                 table: "RequestHeaders",
                 type: "boolean",
                 nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+                defaultValue: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Status",
-                table: "RequestHeaders",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(bool),
-                oldType: "boolean");
+            migrationBuilder.DropColumn(
+                name: "CheckGeneralRequest",
+                table: "RequestHeaders");
         }
     }
 }

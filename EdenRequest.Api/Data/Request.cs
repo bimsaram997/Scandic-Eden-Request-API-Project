@@ -7,7 +7,8 @@ namespace EdenRequest.Api.Data
     {
         public int Id { get; set; }
         public string? RoomNumber { get; set; }
-        public bool IsGeneralRequest => string.IsNullOrWhiteSpace(RoomNumber);
+        //public bool IsGeneralRequest = false;
+        public bool CheckGeneralRequest { get; set; } = false;
 
         public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
