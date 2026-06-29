@@ -1,5 +1,6 @@
 ﻿using EdenRequest.Api.DTO;
 using EdenRequest.Api.Hubs;
+using EdenRequest.Api.Requests;
 using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -57,12 +58,12 @@ namespace EdenRequest.Api.Controllers
             return Ok(request);
         }
 
-        [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusPayload payload)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateRquestHeaderRequest payload)
         {
             try
             {
-                var updated = await _requestService.ChangeStatusAsync(id, payload.Status);
+                var updated = await _requestService.ChangeStatusAsync(id, payload);
                 await _hubContext.Clients.Group($"Employee_{updated.EmployeeId}")
                     .SendAsync("RequestStatusUpdated", updated);
                 return Ok(updated);
@@ -88,7 +89,7 @@ namespace EdenRequest.Api.Controllers
 
             try
             {
-                // 2. 🔥 CRITICAL FIX: Pass the logged-in user context, the role flag, and the ENTIRE filter object down!
+                //  Pass the logged-in user context, the role flag, and the ENTIRE filter object down!
                 var response = await _requestService.GetEmployeeHistoryAsync(employeeId, isTeamLeader, query);
 
                 return Ok(response);
@@ -98,7 +99,7 @@ namespace EdenRequest.Api.Controllers
                 return StatusCode(500, $"Internal server error routing filtered history records: {ex.Message}");
             }
         }
-        public record UpdateStatusPayload(string Status);
+        public record UpdateStatusPayload(string Status, int UpdatedBy);
 
     }
 }
