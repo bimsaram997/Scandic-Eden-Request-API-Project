@@ -76,6 +76,28 @@ namespace EdenRequest.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("employee/{employeeId}/history")]
+        public async Task<IActionResult> GetHistory(int employeeId, [FromQuery] bool isTeamLeader, [FromBody] HistoryQueryDto query)
+        {
+            // 1. Fallback protection if the body mapping object initializes as null
+            if (query == null)
+            {
+                query = new HistoryQueryDto { Page = 1, PageSize = 6 };
+            }
+
+            try
+            {
+                // 2. 🔥 CRITICAL FIX: Pass the logged-in user context, the role flag, and the ENTIRE filter object down!
+                var response = await _requestService.GetEmployeeHistoryAsync(employeeId, isTeamLeader, query);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error routing filtered history records: {ex.Message}");
+            }
+        }
         public record UpdateStatusPayload(string Status);
 
     }
