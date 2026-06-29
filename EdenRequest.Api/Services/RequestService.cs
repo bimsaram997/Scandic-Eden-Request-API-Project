@@ -1,10 +1,11 @@
 ﻿using EdenRequest.Api.Data;
+using EdenRequest.Api.DTO;
 using EdenRequest.Api.Repositories;
 
 namespace EdenRequest.Api.Services
 {
 
-    public record PlaceBulkRequestDto(int EmployeeId, int RoomListId, string? RoomNumber, List<BulkLineDto> Items);
+    public record PlaceBulkRequestDto(int EmployeeId, int RoomListId, string? RoomNumber, List<BulkLineDto> Items, string Notes);
     public record BulkLineDto(int ItemId, int Quantity, string UnitType);
     public interface IRequestService
     {
@@ -12,6 +13,7 @@ namespace EdenRequest.Api.Services
         Task<IEnumerable<RequestHeader>> GetAllRequestsAsync();
         Task<RequestHeader> ChangeStatusAsync(int requestId, string newStatus);
         Task<RequestHeader?> GetRequestByIdAsync(int id);
+        Task<PagedResponse<RequestHistoryDto>> GetEmployeeHistoryAsync(int employeeId, bool isTeamLeader, HistoryQueryDto filters);
     }
     public class RequestService : IRequestService
     {
@@ -58,7 +60,8 @@ namespace EdenRequest.Api.Services
                 RoomListId = dto.RoomListId,
                 RoomNumber = string.IsNullOrWhiteSpace(dto.RoomNumber) ? null : dto.RoomNumber,
                 Status = "Pending",
-                CheckGeneralRequest  = string.IsNullOrWhiteSpace(dto.RoomNumber) ? true : false
+                CheckGeneralRequest  = string.IsNullOrWhiteSpace(dto.RoomNumber) ? true : false,
+                Notes = dto.Notes
             };
 
             foreach (var item in dto.Items)
@@ -89,6 +92,34 @@ namespace EdenRequest.Api.Services
         {
             var request = await _requestRepository.GetByIdAsync(id);
             return request;
+        }
+
+        public async Task<PagedResponse<RequestHistoryDto>> GetEmployeeHistoryAsync(int employeeId, bool isTeamLeader, HistoryQueryDto filterse)
+        {
+            var pagedResult = await _requestRepository.GetPagedRequestsByEmployeeAsync(employeeId, isTeamLeader, filterse);
+
+            var mappedData = pagedResult.Data.Select(h => new RequestHistoryDto
+            {
+                Id = h.Id,
+                RoomNumber = h.RoomNumber,
+                RoomListId = h.RoomListId,
+                Status = h.Status.ToString(),
+                CreatedAt = h.CreatedAt,
+                Notes = h.Notes,
+                // 🍇 Maps from .Lines instead of .Items
+                Items = h.Lines.Select(l => new ItemLineDto
+                {
+                    ItemName = l.Item?.Name ?? "Unknown Item",
+                    Quantity = l.Quantity,
+                    UnitType = l.UnitType
+                }).ToList()
+            });
+
+            return new PagedResponse<RequestHistoryDto>
+            {
+                Data = mappedData,
+                TotalCount = pagedResult.TotalCount
+            };
         }
 
         public async Task<RequestHeader> ChangeStatusAsync(int requestId, string newStatus)

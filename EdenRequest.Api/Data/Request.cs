@@ -21,6 +21,7 @@ namespace EdenRequest.Api.Data
         public int RoomListId { get; set; } // The active shift list ID used by the worker
 
         public List<RequestLine> Lines { get; set; } = new();
+        public string? Notes { get; set; }
     }
 
     public class RequestLine
