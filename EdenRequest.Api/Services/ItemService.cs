@@ -44,11 +44,11 @@ namespace EdenRequest.Api.Services
             return await _itemRepository.AddItemAsync(newItem);
         }
 
-        public async Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId)
-        {
+            public async Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId)
+            {
             
-            return await _itemRepository.GetItemsByCategoryIdAsync(categoryId);
-        }
+                return await _itemRepository.GetItemsByCategoryIdAsync(categoryId);
+            }
 
     }
 }

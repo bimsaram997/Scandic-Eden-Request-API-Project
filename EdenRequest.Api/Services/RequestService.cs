@@ -1,6 +1,8 @@
 ﻿using EdenRequest.Api.Data;
 using EdenRequest.Api.DTO;
 using EdenRequest.Api.Repositories;
+using EdenRequest.Api.Requests;
+using static EdenRequest.Api.Controllers.RequestController;
 
 namespace EdenRequest.Api.Services
 {
@@ -11,7 +13,7 @@ namespace EdenRequest.Api.Services
     {
         Task<RequestHeader> PlaceRequestAsync(PlaceBulkRequestDto dto);
         Task<IEnumerable<RequestHeader>> GetAllRequestsAsync();
-        Task<RequestHeader> ChangeStatusAsync(int requestId, string newStatus);
+        Task<RequestHeader> ChangeStatusAsync(int requestId, UpdateRquestHeaderRequest payload);
         Task<RequestHeader?> GetRequestByIdAsync(int id);
         Task<PagedResponse<RequestHistoryDto>> GetEmployeeHistoryAsync(int employeeId, bool isTeamLeader, HistoryQueryDto filters);
     }
@@ -106,6 +108,7 @@ namespace EdenRequest.Api.Services
                 Status = h.Status.ToString(),
                 CreatedAt = h.CreatedAt,
                 Notes = h.Notes,
+                Name = h.Employee != null ? h.Employee.Name : "Unassigned",
                 // 🍇 Maps from .Lines instead of .Items
                 Items = h.Lines.Select(l => new ItemLineDto
                 {
@@ -122,16 +125,17 @@ namespace EdenRequest.Api.Services
             };
         }
 
-        public async Task<RequestHeader> ChangeStatusAsync(int requestId, string newStatus)
+        public async Task<RequestHeader> ChangeStatusAsync(int requestId, UpdateRquestHeaderRequest update)
         {
             var request = await _requestRepository.GetByIdAsync(requestId);
             if (request == null)
                 throw new KeyNotFoundException("Housekeeping request was not found.");
 
-            if (newStatus != "Acknowledged" && newStatus != "Delivered")
-                throw new ArgumentException("Invalid status update value provided.");
+            if (update.Status == request.Status)
+                throw new ArgumentException("Same Status");
 
-            request.Status = newStatus;
+            request.Status = update.Status;
+            request.UpdatedBy = update.UpdatedBy;
             request.UpdatedAt = DateTime.UtcNow;
 
             await _requestRepository.UpdateAsync(request);

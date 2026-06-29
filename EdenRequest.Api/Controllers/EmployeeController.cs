@@ -28,5 +28,12 @@ namespace EdenRequest.Api.Controllers
             }
         }
 
+        [HttpGet("getAllEmployee")]
+        public async Task<IActionResult> GetAllEmployeeByIdAsync()
+        {
+            var employees = await _employeeService.GetAllEmployeeAsync();
+            return Ok(employees);
+        }
+
     }
 }

@@ -13,6 +13,7 @@ namespace EdenRequest.Api.Data
         public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        public int? UpdatedBy { get; set; }
 
         // New Tracking Audit Properties (OOP Relationships)
         public int EmployeeId { get; set; }
