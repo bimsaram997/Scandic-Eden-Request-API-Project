@@ -8,6 +8,8 @@ namespace EdenRequest.Api.Repositories
     {
         Task<Employee> GetEmployeeByEmailAndPassword(string email, string password);
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
+        Task<Employee> GetEmployeeById(int id);
+
     }
     public class EmployeeRepository: IEmployeeRepository
     {
@@ -40,6 +42,9 @@ namespace EdenRequest.Api.Repositories
         .ToListAsync();
         }
 
-
+        public async Task<Employee> GetEmployeeById(int id)
+        {
+            return await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        }
     }
 }

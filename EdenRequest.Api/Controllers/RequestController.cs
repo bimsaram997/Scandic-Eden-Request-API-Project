@@ -13,11 +13,15 @@ namespace EdenRequest.Api.Controllers
     {
         private readonly IRequestService _requestService;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly IEmployeeService _employeeService;
 
-        public RequestController(IRequestService requestService, IHubContext<NotificationHub> hubContext)
+        public RequestController(IRequestService requestService,
+            IHubContext<NotificationHub> hubContext, IEmployeeService employeeService)
         {
+
             _requestService = requestService;
             _hubContext = hubContext;
+            _employeeService = employeeService;
         }
 
         [HttpPost("placeBulkRequest")]
@@ -26,8 +30,19 @@ namespace EdenRequest.Api.Controllers
             try
             {
                 var result = await _requestService.PlaceRequestAsync(dto);
+                var employee = await _employeeService.GetEmployeeById(result.EmployeeId);
+                string senderEmail = employee?.Email ?? "Unknown Housekeeper";
+                // Broadcast to the Team Leader monitoring channel
                 await _hubContext.Clients.Group("ActiveLeadersDashboard")
-                    .SendAsync("NewRequestReceived", result);
+                    .SendAsync("ReceiveNewRequestAlert", new
+                    {
+                        requestId = result.Id,
+                        roomNumber = result.RoomNumber,
+                        status = result.Status,
+                        notes = result.Notes,
+                        createdBy = senderEmail
+                    });
+
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -63,9 +78,35 @@ namespace EdenRequest.Api.Controllers
         {
             try
             {
+                // 🟢 1. CRITICAL FIX: Fetch the request directly BEFORE updating it
+                // (Make sure your RequestService has a method to get a request by ID)
+                var originalRequest = await _requestService.GetRequestByIdAsync(id);
+                int originalHousekeeperId = originalRequest?.EmployeeId ?? 0;
+
+                // 2. Perform the actual status change
                 var updated = await _requestService.ChangeStatusAsync(id, payload);
-                await _hubContext.Clients.Group($"Employee_{updated.EmployeeId}")
-                    .SendAsync("RequestStatusUpdated", updated);
+
+                // 🟢 3. CRITICAL FIX: Use the originalHousekeeperId instead of updated.EmployeeId
+                if (updated != null && originalHousekeeperId > 0)
+                {
+                    // Fetch the original creator's data profile
+                    var employee = await _employeeService.GetEmployeeById(originalHousekeeperId);
+
+                    if (employee != null && !string.IsNullOrEmpty(employee.Email))
+                    {
+                        // Target the specific housekeeper group by cleaning up their email string
+                        string cleanEmail = employee.Email.Replace("@", "_").Replace(".", "_");
+                        string housekeeperChannel = $"User_{cleanEmail}";
+
+                        await _hubContext.Clients.Group(housekeeperChannel)
+                            .SendAsync("ReceiveStatusUpdate", new
+                            {
+                                requestId = updated.Id,
+                                roomNumber = updated.RoomNumber,
+                                status = updated.Status // 👈 Quick Tip: Make sure you pass updated.Status here instead of the whole object!
+                            });
+                    }
+                }
                 return Ok(updated);
             }
             catch (KeyNotFoundException ex)
@@ -77,6 +118,7 @@ namespace EdenRequest.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+    
 
         [HttpPost("employee/{employeeId}/history")]
         public async Task<IActionResult> GetHistory(int employeeId, [FromQuery] bool isTeamLeader, [FromBody] HistoryQueryDto query)
