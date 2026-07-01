@@ -7,6 +7,7 @@ namespace EdenRequest.Api.Services
     public interface IEmployeeService
     {
         Task<Employee> GetEmployeeByEmailAndPassword(string email, string password);
+        Task<Employee> GetEmployeeById(int id);
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
     }
     public class EmployeeService: IEmployeeService  
@@ -32,6 +33,11 @@ namespace EdenRequest.Api.Services
         public async Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync()
         {
             return await _employeeRepository.GetAllEmployeeAsync();
+        }
+
+        public Task<Employee> GetEmployeeById(int id)
+        {
+            return _employeeRepository.GetEmployeeById(id);
         }
     }
 }

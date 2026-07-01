@@ -4,16 +4,17 @@ namespace EdenRequest.Api.Hubs
 {
     public class NotificationHub: Hub
     {
-        // Dynamic group assignment based on database Employee Id
-        public async Task JoinEmployeeChannel(string employeeId)
+        public async Task JoinUserByRole(string email, string role)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"Employee_{employeeId}");
-        }
+            if (string.IsNullOrEmpty(email)) return;
 
-        // Broad monitoring room for Team Leaders on duty
-        public async Task JoinLeaderDashboard()
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "ActiveLeadersDashboard");
+            string cleanEmailGroup = $"User_{email.Replace("@", "_").Replace(".", "_")}";
+            await Groups.AddToGroupAsync(Context.ConnectionId, cleanEmailGroup);
+
+            if (role == "Leader" || role == "TeamLeader")
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, "ActiveLeadersDashboard");
+            }
         }
     }
 }
