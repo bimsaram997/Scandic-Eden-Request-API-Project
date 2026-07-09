@@ -9,6 +9,11 @@
 
         public string Role { get; set; } = "Housekeeper"; // Housekeeper, TeamLeader
 
+        //  columns for Push Notifications
+        public string? PushEndpoint { get; set; }
+        public string? PushP256DH { get; set; }
+        public string? PushAuth { get; set; }
+
     }
 
 

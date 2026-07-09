@@ -135,7 +135,10 @@ namespace EdenRequest.Api.Services
                 throw new ArgumentException("Same Status");
 
             request.Status = update.Status;
-            request.UpdatedBy = update.UpdatedBy;
+
+            // 🚀 THE FIX: Target the ID column instead of the navigation entity reference object
+            request.UpdatedById = update.UpdatedBy;
+
             request.UpdatedAt = DateTime.UtcNow;
 
             await _requestRepository.UpdateAsync(request);

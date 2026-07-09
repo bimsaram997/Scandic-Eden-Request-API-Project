@@ -8,15 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Database configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-
 // 1. CORS POLICY DEFINITION
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularClientPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://127.0.0.1:4200", " http://192.168.0.101:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Required for SignalR long polling/websockets
@@ -34,6 +34,8 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IItemCategoryRepository, ItemCategoryRepository>();
 builder.Services.AddScoped<IitemCategoryService, itemCategoryService>();
+
+builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260704174716_AddPushNotificationColumns")]
+    partial class AddPushNotificationColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,14 +186,12 @@ namespace EdenRequest.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("UpdatedById")
+                    b.Property<int?>("UpdatedBy")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
-
-                    b.HasIndex("UpdatedById");
 
                     b.ToTable("RequestHeaders");
                 });
@@ -244,13 +245,7 @@ namespace EdenRequest.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EdenRequest.Api.Data.Employee", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
                     b.Navigation("Employee");
-
-                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("EdenRequest.Api.Data.RequestLine", b =>

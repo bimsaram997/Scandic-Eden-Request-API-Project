@@ -45,11 +45,12 @@ namespace EdenRequest.Api.Repositories
         {
             // Eagerly loading Employee, Lines, Items, and Categories for a single record match
             return await _context.RequestHeaders
-                .Include(h => h.Employee)
-                .Include(h => h.Lines)
-                    .ThenInclude(l => l.Item)
-                        .ThenInclude(i => i!.Category) // This ensures Category isn't null here either!
-                .FirstOrDefaultAsync(h => h.Id == id);
+         .Include(h => h.Employee)
+         .Include(h => h.UpdatedBy) // 🚀 This will work perfectly now!
+         .Include(h => h.Lines)
+             .ThenInclude(l => l.Item)
+                 .ThenInclude(i => i!.Category)
+         .FirstOrDefaultAsync(h => h.Id == id);
         }
 
         public async Task<PagedResponse<RequestHeader>> GetPagedRequestsByEmployeeAsync(int employeeId, bool isTeamLeader, HistoryQueryDto filters)
