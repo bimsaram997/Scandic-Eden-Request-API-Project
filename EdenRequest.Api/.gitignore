@@ -1,0 +1,10 @@
+﻿# Ignore local development configurations with real secrets
+**/appsettings.Development.json
+**/appsettings.local.json
+# Ignore built binaries and cache
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+.vs/
+.vscode/

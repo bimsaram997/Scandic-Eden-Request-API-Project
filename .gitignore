@@ -363,8 +363,8 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Ignore local development configurations with real secrets
-Backend/**/appsettings.Development.json
-Backend/**/appsettings.local.json
+EdenRequest.Api/appsettings.Development.json
+EdenRequest.Api/appsettings.local.json
 
 # Ignore built binaries and cache
 [Dd]ebug/
