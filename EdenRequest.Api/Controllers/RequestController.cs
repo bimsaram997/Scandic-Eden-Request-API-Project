@@ -14,14 +14,16 @@ namespace EdenRequest.Api.Controllers
         private readonly IRequestService _requestService;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IEmployeeService _employeeService;
+        private readonly NotificationService _notificationService;
 
         public RequestController(IRequestService requestService,
-            IHubContext<NotificationHub> hubContext, IEmployeeService employeeService)
+            IHubContext<NotificationHub> hubContext, IEmployeeService employeeService, NotificationService notificationService)
         {
 
             _requestService = requestService;
             _hubContext = hubContext;
             _employeeService = employeeService;
+            _notificationService = notificationService;
         }
 
         [HttpPost("placeBulkRequest")]
@@ -42,6 +44,38 @@ namespace EdenRequest.Api.Controllers
                         notes = result.Notes,
                         createdBy = senderEmail
                     });
+                try
+                {
+                    // Database-level filtering via your custom method
+                    var targetLeaders = await _employeeService.GetEmployeesByRoleAsync("TeamLeader");
+
+                    foreach (var leader in targetLeaders)
+                    {
+                        if (string.IsNullOrEmpty(leader.Email)) continue;
+
+                        // Check if this leader's email is actively tracked in our live SignalR dictionary
+                        bool isCurrentlyOnline = EdenRequest.Api.Hubs.NotificationHub.ActiveUsers.ContainsKey(leader.Email.ToLower().Trim());
+
+                        if (isCurrentlyOnline)
+                        {
+                            string pushTitle = "🚨 New Bulk Request!";
+                            string pushBody = $"Room {result.RoomNumber} submitted by {senderEmail}.";
+                            string targetUrl = "/workspace/leader-dashboard";
+
+                            await _notificationService.SendNotificationToEmployeeAsync(
+                                leader.Id,
+                                pushTitle,
+                                pushBody,
+                                targetUrl
+                            );
+                        }
+                    }
+                }
+                catch (Exception pushEx)
+                {
+                    // Gracefully catch background push flaws so the database record return remains unbothered
+                    return NotFound(pushEx.Message);
+                }
 
                 return Ok(result);
             }
@@ -82,6 +116,7 @@ namespace EdenRequest.Api.Controllers
                 // (Make sure your RequestService has a method to get a request by ID)
                 var originalRequest = await _requestService.GetRequestByIdAsync(id);
                 int originalHousekeeperId = originalRequest?.EmployeeId ?? 0;
+                
 
                 // 2. Perform the actual status change
                 var updated = await _requestService.ChangeStatusAsync(id, payload);
@@ -106,6 +141,24 @@ namespace EdenRequest.Api.Controllers
                                 status = updated.Status // 👈 Quick Tip: Make sure you pass updated.Status here instead of the whole object!
                             });
                     }
+                    string url = $"/workspace/requests-component/{updated.Id}";
+
+
+                    if (!string.IsNullOrEmpty(employee.PushEndpoint))
+                    {
+                        string pushTitle = "✅ Task Status Updated!";
+                        string pushBody = $"Room {updated.RoomNumber} status has changed to: '{updated.Status}'.";
+                        string targetUrl = url; // Sends Housekeeper straight to their routing view
+
+                        await _notificationService.SendNotificationToEmployeeAsync(
+                            employee.Id,
+                            pushTitle,
+                            pushBody,
+                            targetUrl
+                        );
+                    }
+
+
                 }
                 return Ok(updated);
             }

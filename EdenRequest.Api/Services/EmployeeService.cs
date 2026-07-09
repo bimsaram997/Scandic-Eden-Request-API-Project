@@ -9,6 +9,8 @@ namespace EdenRequest.Api.Services
         Task<Employee> GetEmployeeByEmailAndPassword(string email, string password);
         Task<Employee> GetEmployeeById(int id);
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
+        Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto);
+        Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role);
     }
     public class EmployeeService: IEmployeeService  
     {
@@ -38,6 +40,43 @@ namespace EdenRequest.Api.Services
         public Task<Employee> GetEmployeeById(int id)
         {
             return _employeeRepository.GetEmployeeById(id);
+        }
+
+        public async Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto)
+        {
+            // 1. Fetch the employee row through the repository layer
+            var employee = await _employeeRepository.GetEmployeeById(employeeId);
+            if (employee == null) return false;
+
+            // 🚀 THE CHROME FIX: Find if another employee record is holding onto this browser token
+            if (!string.IsNullOrEmpty(dto.PushEndpoint))
+            {
+                var previousDeviceOwner = await _employeeRepository.GetEmployeeByPushEndpointAsync(dto.PushEndpoint);
+
+                // If a ghost session (like the Team Leader) left their token here, wipe it and save them first
+                if (previousDeviceOwner != null && previousDeviceOwner.Id != employeeId)
+                {
+                    previousDeviceOwner.PushEndpoint = null;
+                    previousDeviceOwner.PushP256DH = null;
+                    previousDeviceOwner.PushAuth = null;
+
+                    await _employeeRepository.UpdateAsync(previousDeviceOwner);
+                }
+            }
+
+            // 2. Apply business logic data mapping changes for the current logger
+            employee.PushEndpoint = dto.PushEndpoint;
+            employee.PushP256DH = dto.PushP256DH;
+            employee.PushAuth = dto.PushAuth;
+
+            // 3. Commit back down through the repository
+            await _employeeRepository.UpdateAsync(employee);
+            return true;
+        }
+
+        public Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role)
+        {
+            return _employeeRepository.GetEmployeesByRoleAsync(role);
         }
     }
 }

@@ -13,7 +13,11 @@ namespace EdenRequest.Api.Data
         public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
-        public int? UpdatedBy { get; set; }
+        // 🚀 Change this: Keep the Foreign Key ID, but give it a clear name
+        public int? UpdatedById { get; set; }
+
+        // 🚀 Add this: The real navigation object relationship for EF Core!
+        public Employee? UpdatedBy { get; set; }
 
         // New Tracking Audit Properties (OOP Relationships)
         public int EmployeeId { get; set; }

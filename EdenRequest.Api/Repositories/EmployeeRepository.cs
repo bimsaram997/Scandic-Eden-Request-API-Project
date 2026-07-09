@@ -9,6 +9,9 @@ namespace EdenRequest.Api.Repositories
         Task<Employee> GetEmployeeByEmailAndPassword(string email, string password);
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
         Task<Employee> GetEmployeeById(int id);
+        Task UpdateAsync(Employee employee);
+        Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role);
+        Task<Employee?> GetEmployeeByPushEndpointAsync(string pushEndpoint);
 
     }
     public class EmployeeRepository: IEmployeeRepository
@@ -45,6 +48,25 @@ namespace EdenRequest.Api.Repositories
         public async Task<Employee> GetEmployeeById(int id)
         {
             return await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task UpdateAsync(Employee employee)
+        {
+            _context.Employees.Update(employee);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role)
+        {
+            return await _context.Employees
+                .Where(e => e.Role == role)
+                .ToListAsync();
+        }
+
+        public async Task<Employee?> GetEmployeeByPushEndpointAsync(string pushEndpoint)
+        {
+            return await _context.Employees
+                .FirstOrDefaultAsync(e => e.PushEndpoint == pushEndpoint);
         }
     }
 }

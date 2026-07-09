@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore local development configurations with real secrets
+Backend/**/appsettings.Development.json
+Backend/**/appsettings.local.json
+
+# Ignore built binaries and cache
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+.vs/
+.vscode/
