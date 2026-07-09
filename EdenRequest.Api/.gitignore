@@ -1,7 +1,6 @@
 ﻿# Ignore local development configurations with real secrets
-Backend/**/appsettings.Development.json
-Backend/**/appsettings.local.json
-
+**/appsettings.Development.json
+**/appsettings.local.json
 # Ignore built binaries and cache
 [Dd]ebug/
 [Rr]elease/
