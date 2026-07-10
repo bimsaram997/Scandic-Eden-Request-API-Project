@@ -34,7 +34,7 @@ namespace EdenRequest.Api.Controllers
                 var result = await _requestService.PlaceRequestAsync(dto);
                 var employee = await _employeeService.GetEmployeeById(result.EmployeeId);
                 string senderEmail = employee?.Email ?? "Unknown Housekeeper";
-                // Broadcast to the Team Leader monitoring channel
+          
                 await _hubContext.Clients.Group("ActiveLeadersDashboard")
                     .SendAsync("ReceiveNewRequestAlert", new
                     {
