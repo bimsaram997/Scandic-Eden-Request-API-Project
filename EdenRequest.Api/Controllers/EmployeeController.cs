@@ -23,7 +23,7 @@ namespace EdenRequest.Api.Controllers
         {
             try
             {
-                // Access fields cleanly from the request object
+                
                 var employee = await _employeeService.GetEmployeeByEmailAndPassword(request.Email, request.Password);
                 return Ok(employee);
             }
@@ -50,7 +50,7 @@ namespace EdenRequest.Api.Controllers
                 return NotFound($"Employee with ID {id} not found.");
             }
 
-            return NoContent(); // Status 204: Successful update execution flow
+            return NoContent(); 
         }
 
     }
