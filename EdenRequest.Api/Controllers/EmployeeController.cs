@@ -1,5 +1,7 @@
-﻿using EdenRequest.Api.DTO;
+﻿using EdenRequest.Api.Data;
+using EdenRequest.Api.DTO;
 using EdenRequest.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EdenRequest.Api.Controllers
@@ -15,12 +17,14 @@ namespace EdenRequest.Api.Controllers
             _employeeService = employeeService;
         }
 
-        [HttpPost("{email}/{password}")]
-        public async Task<IActionResult> GetEmployeeByEmailAndPassword(string email, string password)
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetEmployeeByEmailAndPassword([FromBody] LoginRequestModel request) // 🚀 FromBody!
         {
             try
             {
-                var employee = await _employeeService.GetEmployeeByEmailAndPassword(email, password);
+                // Access fields cleanly from the request object
+                var employee = await _employeeService.GetEmployeeByEmailAndPassword(request.Email, request.Password);
                 return Ok(employee);
             }
             catch (ArgumentException ex)
