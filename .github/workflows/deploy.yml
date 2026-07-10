@@ -41,13 +41,15 @@ jobs:
       run: |
         echo "IMAGE_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-    # Set dynamic tag based on event type (handles dev push vs master pull request merge)
+    # Set dynamic tag and choose the right Render Deploy Hook based on event type
     - name: Determine Docker Tag
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           echo "DOCKER_TAG=${{ github.base_ref }}" >> $GITHUB_ENV
+          echo "RENDER_HOOK=${{ secrets.RENDER_DEPLOY_HOOK_MASTER }}" >> $GITHUB_ENV
         else
           echo "DOCKER_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "RENDER_HOOK=${{ secrets.RENDER_DEPLOY_HOOK_DEV }}" >> $GITHUB_ENV
         fi
 
     - name: Build and Push Docker Image
@@ -59,3 +61,9 @@ jobs:
         tags: |
           ghcr.io/${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG }}
           ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+    # New step to safely ping Render to deploy the fresh container image instantly
+    - name: Trigger Render Deployment
+      if: env.RENDER_HOOK != ''
+      run: |
+        curl -X POST "${{ env.RENDER_HOOK }}"
