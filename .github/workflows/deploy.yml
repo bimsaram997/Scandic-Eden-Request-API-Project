@@ -5,6 +5,11 @@ on:
     branches:
       - dev
 
+# Add these explicit permissions so the pipeline can write to GitHub Packages (GHCR)
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
