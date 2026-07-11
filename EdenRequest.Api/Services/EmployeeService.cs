@@ -44,11 +44,11 @@ namespace EdenRequest.Api.Services
 
         public async Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto)
         {
-            // 1. Fetch the employee row through the repository layer
+            //  Fetch the employee row through the repository layer
             var employee = await _employeeRepository.GetEmployeeById(employeeId);
             if (employee == null) return false;
 
-            // 🚀 THE CHROME FIX: Find if another employee record is holding onto this browser token
+            // Find if another employee record is holding onto this browser token
             if (!string.IsNullOrEmpty(dto.PushEndpoint))
             {
                 var previousDeviceOwner = await _employeeRepository.GetEmployeeByPushEndpointAsync(dto.PushEndpoint);
