@@ -45,12 +45,15 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Eden Request API v1");
 
+    // Optional: This makes Swagger the default page at the root URL (/)
+    // If you prefer typing /swagger locally, you can leave this line out!
+    c.RoutePrefix = string.Empty;
+});
 app.UseHttpsRedirection();
 
 app.UseRouting(); // 1. Set up routing metadata first
