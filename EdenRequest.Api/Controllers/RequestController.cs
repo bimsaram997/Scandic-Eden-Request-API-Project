@@ -60,7 +60,7 @@ namespace EdenRequest.Api.Controllers
                         {
                             string pushTitle = "🚨 New Bulk Request!";
                             string pushBody = $"Room {result.RoomNumber} submitted by {senderEmail}.";
-                            string targetUrl = "/workspace/leader-dashboard";
+                            string targetUrl =  $"/workspace/requests-component/{result.Id}";
 
                             await _notificationService.SendNotificationToEmployeeAsync(
                                 leader.Id,
