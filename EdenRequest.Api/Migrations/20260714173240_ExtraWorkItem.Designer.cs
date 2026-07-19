@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260714173240_ExtraWorkItem")]
+    partial class ExtraWorkItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,32 +97,6 @@ namespace EdenRequest.Api.Migrations
                         });
                 });
 
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraRequestLine", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ExtraWorkItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ExtraWorkRequestId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExtraWorkItemId");
-
-                    b.HasIndex("ExtraWorkRequestId");
-
-                    b.ToTable("ExtraRequestLines");
-                });
-
             modelBuilder.Entity("EdenRequest.Api.Data.ExtraWorkItem", b =>
                 {
                     b.Property<int>("Id")
@@ -131,9 +108,6 @@ namespace EdenRequest.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -141,60 +115,9 @@ namespace EdenRequest.Api.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("UpdatedById")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("ExtraWorkItems");
-                });
-
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraWorkRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AddedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("AssignedToId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ListNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<int>("RequestedById")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RoomNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("UpdatedById")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedToId");
-
-                    b.HasIndex("RequestedById");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("ExtraWorkRequests");
                 });
 
             modelBuilder.Entity("EdenRequest.Api.Data.Item", b =>
@@ -344,50 +267,6 @@ namespace EdenRequest.Api.Migrations
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraRequestLine", b =>
-                {
-                    b.HasOne("EdenRequest.Api.Data.ExtraWorkItem", "ExtraWorkItem")
-                        .WithMany()
-                        .HasForeignKey("ExtraWorkItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EdenRequest.Api.Data.ExtraWorkRequest", "ExtraWorkRequest")
-                        .WithMany("ExtraRequestLine")
-                        .HasForeignKey("ExtraWorkRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExtraWorkItem");
-
-                    b.Navigation("ExtraWorkRequest");
-                });
-
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraWorkRequest", b =>
-                {
-                    b.HasOne("EdenRequest.Api.Data.Employee", "AssignedTo")
-                        .WithMany()
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EdenRequest.Api.Data.Employee", "RequestedBy")
-                        .WithMany()
-                        .HasForeignKey("RequestedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EdenRequest.Api.Data.Employee", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
-                    b.Navigation("AssignedTo");
-
-                    b.Navigation("RequestedBy");
-
-                    b.Navigation("UpdatedBy");
-                });
-
             modelBuilder.Entity("EdenRequest.Api.Data.Item", b =>
                 {
                     b.HasOne("EdenRequest.Api.Data.ItemCategory", "Category")
@@ -433,11 +312,6 @@ namespace EdenRequest.Api.Migrations
                     b.Navigation("Item");
 
                     b.Navigation("RequestHeader");
-                });
-
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraWorkRequest", b =>
-                {
-                    b.Navigation("ExtraRequestLine");
                 });
 
             modelBuilder.Entity("EdenRequest.Api.Data.ItemCategory", b =>

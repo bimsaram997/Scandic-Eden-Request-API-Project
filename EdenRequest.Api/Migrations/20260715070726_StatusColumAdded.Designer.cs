@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260715070726_StatusColumAdded")]
+    partial class StatusColumAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,18 +134,12 @@ namespace EdenRequest.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("UpdatedById")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -163,18 +160,14 @@ namespace EdenRequest.Api.Migrations
                     b.Property<int>("AssignedToId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ListNumber")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
                     b.Property<int>("RequestedById")
                         .HasColumnType("integer");
 
-                    b.Property<string>("RoomNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("RoomId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -191,6 +184,8 @@ namespace EdenRequest.Api.Migrations
                     b.HasIndex("AssignedToId");
 
                     b.HasIndex("RequestedById");
+
+                    b.HasIndex("RoomId");
 
                     b.HasIndex("UpdatedById");
 
@@ -377,6 +372,12 @@ namespace EdenRequest.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EdenRequest.Api.Data.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("EdenRequest.Api.Data.Employee", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -384,6 +385,8 @@ namespace EdenRequest.Api.Migrations
                     b.Navigation("AssignedTo");
 
                     b.Navigation("RequestedBy");
+
+                    b.Navigation("Room");
 
                     b.Navigation("UpdatedBy");
                 });
