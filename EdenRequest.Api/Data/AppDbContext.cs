@@ -14,6 +14,10 @@ namespace EdenRequest.Api.Data
         public DbSet<Employee> Employees { get; set; } = null!;
         public DbSet<RequestHeader> RequestHeaders { get; set; } = null!;
         public DbSet<RequestLine> RequestLines { get; set; } = null!;
+        public DbSet<Room> Rooms { get; set; } = null!;
+        public DbSet<ExtraWorkItem> ExtraWorkItems { get; set; } = null!;
+        public DbSet<ExtraWorkRequest> ExtraWorkRequests { get; set; } = null!;
+        public DbSet<ExtraRequestLine> ExtraRequestLines { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

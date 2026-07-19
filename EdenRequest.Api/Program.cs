@@ -35,6 +35,11 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IItemCategoryRepository, ItemCategoryRepository>();
 builder.Services.AddScoped<IitemCategoryService, itemCategoryService>();
+builder.Services.AddScoped<IExtraWorkRequestRepository, ExtraWorkRequestRepository>();
+builder.Services.AddScoped<IExtraWorkRequestService, ExtraWorkRequestService>();
+builder.Services.AddScoped<IExtraWorkItemRepository, ExtraWorkItemRepository>();
+builder.Services.AddScoped<IExtraWorkItemService, ExtraWorkItemService>();
+
 
 builder.Services.AddScoped<NotificationService>();
 
@@ -69,5 +74,7 @@ app.MapControllers();
 
 // Map SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
+Console.WriteLine($"\n ENVIRONMENT: {builder.Environment.EnvironmentName}");
+Console.WriteLine($" ACTIVE VAPID PUBLIC KEY: {builder.Configuration["VapidDetails:PublicKey"]}\n");
 
 app.Run();
