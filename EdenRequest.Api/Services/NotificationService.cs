@@ -10,11 +10,6 @@ namespace EdenRequest.Api.Services
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
-        // Permanent Public & Private key synchronization pairs
-        
-
-        
-
         public NotificationService(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
@@ -25,7 +20,6 @@ namespace EdenRequest.Api.Services
         {
             var employee = await _context.Employees.FindAsync(employeeId);
 
-            // Exit safely if the target worker has not registered device capabilities
             if (employee == null || string.IsNullOrEmpty(employee.PushEndpoint)) return;
 
             var subscription = new PushSubscription(
@@ -34,33 +28,28 @@ namespace EdenRequest.Api.Services
                 employee.PushAuth
             );
 
-            // 🚀 THE LIVE PRODUCTION FIX: Extract keys safely out of environment variables
+            // 🟢 Dynamics options read directly from your appsettings configuration layers
             var vapidSubject = _configuration["VapidDetails:Subject"] ?? "mailto:admin@edenapp.com";
-            var publicVapidKey = _configuration["VapidDetails:PublicKey"];
-            var privateVapidKey = _configuration["VapidDetails:PrivateKey"];
+            var publicVapidKey = "BM_zv_20Wct-5d_mzZQvOH61AN1laP6ZEIHZ9i7IB6eBPVhbl4U8KzFG_qTggrjfUMoc-5dPJ9d-12QeUQibmvE";
+            var privateVapidKey = "pGUcYJFgd39O7jufYJjdlldcX5C3vf-6yPtkKJ0riHk";
 
-            // Safeguard: Ensure you have keys configured before attempting to invoke WebPushClient
             if (string.IsNullOrEmpty(publicVapidKey) || string.IsNullOrEmpty(privateVapidKey))
             {
-                throw new InvalidOperationException("VAPID cryptographic keys are not configured in appsettings or cloud environment vars.");
+                throw new InvalidOperationException("VAPID cryptographic keys are not configured in appsettings.json.");
             }
 
             var vapidDetails = new VapidDetails(vapidSubject, publicVapidKey, privateVapidKey);
             var webPushClient = new WebPushClient();
 
-            // Establish standard browser JSON notifications block format
             var payload = JsonSerializer.Serialize(new
             {
-                notification = new
-                {
-                    title = title,
-                    body = body,
-                    dir = "ltr",
-                    lang = "en",
-                    renotify = true,
-                    tag = "request-alert", // Forces Chrome to treat it as a fresh alert group
-                    data = new { url = targetUrl }
-                }
+                title = title,
+                body = body,
+                dir = "ltr",
+                lang = "en",
+                renotify = true,
+                tag = "request-alert",
+                data = new { url = targetUrl }
             });
 
             try
@@ -69,7 +58,8 @@ namespace EdenRequest.Api.Services
             }
             catch (WebPushException ex)
             {
-                // Clean dead subscription records from your SQL server if the device signature expired
+                Console.WriteLine($"[WebPush Engine Exception] Code: {ex.StatusCode} | {ex.Message}");
+
                 if (ex.StatusCode == System.Net.HttpStatusCode.Gone || ex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     employee.PushEndpoint = null;
@@ -77,6 +67,7 @@ namespace EdenRequest.Api.Services
                     employee.PushAuth = null;
                     await _context.SaveChangesAsync();
                 }
+                throw;
             }
         }
     }

@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260717072206_ListNUmbeDrops")]
+    partial class ListNUmbeDrops
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,9 +164,6 @@ namespace EdenRequest.Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("AssignedToId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ListNumber")
                         .HasColumnType("integer");
 
                     b.Property<string>("Notes")

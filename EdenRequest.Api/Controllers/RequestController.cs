@@ -4,6 +4,7 @@ using EdenRequest.Api.Requests;
 using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using WebPush;
 
 namespace EdenRequest.Api.Controllers
 {
@@ -60,7 +61,7 @@ namespace EdenRequest.Api.Controllers
                         {
                             string pushTitle = "🚨 New Bulk Request!";
                             string pushBody = $"Room {result.RoomNumber} submitted by {senderEmail}.";
-                            string targetUrl = "/workspace/leader-dashboard";
+                            string targetUrl =  $"/workspace/requests-component/{result.Id}";
 
                             await _notificationService.SendNotificationToEmployeeAsync(
                                 leader.Id,
@@ -106,22 +107,19 @@ namespace EdenRequest.Api.Controllers
 
             return Ok(request);
         }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateRquestHeaderRequest payload)
         {
             try
             {
-                // 🟢 1. CRITICAL FIX: Fetch the request directly BEFORE updating it
-                // (Make sure your RequestService has a method to get a request by ID)
+                // 🟢 1. Fetch the request directly BEFORE updating it
                 var originalRequest = await _requestService.GetRequestByIdAsync(id);
                 int originalHousekeeperId = originalRequest?.EmployeeId ?? 0;
-                
 
                 // 2. Perform the actual status change
                 var updated = await _requestService.ChangeStatusAsync(id, payload);
 
-                // 🟢 3. CRITICAL FIX: Use the originalHousekeeperId instead of updated.EmployeeId
+                // 🟢 3. Use the originalHousekeeperId instead of updated.EmployeeId
                 if (updated != null && originalHousekeeperId > 0)
                 {
                     // Fetch the original creator's data profile
@@ -138,28 +136,39 @@ namespace EdenRequest.Api.Controllers
                             {
                                 requestId = updated.Id,
                                 roomNumber = updated.RoomNumber,
-                                status = updated.Status // 👈 Quick Tip: Make sure you pass updated.Status here instead of the whole object!
+                                status = updated.Status
                             });
                     }
+
                     string url = $"/workspace/requests-component/{updated.Id}";
 
-
-                    if (!string.IsNullOrEmpty(employee.PushEndpoint))
+                    if (!string.IsNullOrEmpty(employee?.PushEndpoint))
                     {
                         string pushTitle = "✅ Task Status Updated!";
                         string pushBody = $"Room {updated.RoomNumber} status has changed to: '{updated.Status}'.";
-                        string targetUrl = url; // Sends Housekeeper straight to their routing view
+                        string targetUrl = url;
 
-                        await _notificationService.SendNotificationToEmployeeAsync(
-                            employee.Id,
-                            pushTitle,
-                            pushBody,
-                            targetUrl
-                        );
+                        try
+                        {
+                            await _notificationService.SendNotificationToEmployeeAsync(
+                                employee.Id,
+                                pushTitle,
+                                pushBody,
+                                targetUrl
+                            );
+                        }
+                        catch (WebPush.WebPushException webPushEx)
+                        {
+                            // 🚨 This prevents the API from crashing and tells you EXACTLY why the push failed
+                            Console.WriteLine($"[WebPush Exception] Status: {webPushEx.StatusCode} | Reason: {webPushEx.Message}");
+                        }
+                        catch (Exception pushEx)
+                        {
+                            Console.WriteLine($"[General Push Error]: {pushEx.Message}");
+                        }
                     }
-
-
                 }
+
                 return Ok(updated);
             }
             catch (KeyNotFoundException ex)
@@ -171,7 +180,7 @@ namespace EdenRequest.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-    
+
 
         [HttpPost("employee/{employeeId}/history")]
         public async Task<IActionResult> GetHistory(int employeeId, [FromQuery] bool isTeamLeader, [FromBody] HistoryQueryDto query)
