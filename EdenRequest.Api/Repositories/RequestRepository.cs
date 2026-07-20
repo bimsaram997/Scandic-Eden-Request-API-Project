@@ -68,6 +68,11 @@ namespace EdenRequest.Api.Repositories
                 query = query.Where(h => h.EmployeeId == filters.TargetEmployeeId.Value);
             }
 
+            if (filters.RequestedById.HasValue)
+            { 
+                query = query.Where(h => h.EmployeeId == filters.RequestedById.Value);
+            }
+
             // Filter by exact List ID matching
             if (filters.RoomListId.HasValue)
             {
