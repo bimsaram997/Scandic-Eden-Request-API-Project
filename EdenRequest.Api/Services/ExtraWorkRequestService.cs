@@ -79,7 +79,8 @@ namespace EdenRequest.Api.Services
                     : "N/A",
 
                 AddedDate = request.AddedDate,
-                UpdatedAt = request.UpdatedAt,
+                AcknowledgedDate = request.AcknowledgedDate,
+                DoneDate = request.DoneDate,
                 Notes = request.Notes,
                 Status = request.Status,
 
@@ -148,7 +149,14 @@ namespace EdenRequest.Api.Services
 
             requestToUpdate.Status = request.Status;
             requestToUpdate.UpdatedById = request.UpdatedById;
-            requestToUpdate.UpdatedAt = DateTime.UtcNow;
+            if(request.Status == "Acknowledge")
+            {
+                requestToUpdate.AcknowledgedDate = DateTime.UtcNow;
+            }else if(request.Status == "Done")
+            {
+                requestToUpdate.DoneDate = DateTime.UtcNow;
+            }
+            
 
             await _extraWorkRequestRepository.UpdateStatusAsync(requestToUpdate);
             return requestToUpdate;
