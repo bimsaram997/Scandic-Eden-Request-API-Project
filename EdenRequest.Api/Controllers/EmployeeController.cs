@@ -1,5 +1,6 @@
 ﻿using EdenRequest.Api.Data;
 using EdenRequest.Api.DTO;
+using EdenRequest.Api.Dtos;
 using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +53,22 @@ namespace EdenRequest.Api.Controllers
 
             return NoContent(); 
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<EmployeeDto>> GetById(int id)
+        {
+            var result = await _employeeService.GetEmployeeGenericDataById(id);
+
+            if (result == null)
+            {
+                return NotFound(new { message = $"Employee with ID {id} was not found." });
+            }
+
+            return Ok(result);
+        }
+
 
     }
 }

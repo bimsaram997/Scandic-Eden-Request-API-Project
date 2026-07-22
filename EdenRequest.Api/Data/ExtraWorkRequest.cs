@@ -12,7 +12,8 @@ namespace EdenRequest.Api.Data
         public DateTime AddedDate { get; set; } = DateTime.UtcNow;
         public List<ExtraRequestLine> ExtraRequestLine { get; set; } = new();
         public string? Notes { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? AcknowledgedDate { get; set; }
+        public DateTime? DoneDate { get; set; }
         public int RequestedById { get; set; }
         public Employee? RequestedBy { get; set; }
         public int AssignedToId { get; set; }

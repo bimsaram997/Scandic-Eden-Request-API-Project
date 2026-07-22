@@ -16,7 +16,8 @@
         public string UpdatedByEmployee { get; set; } = "N/A";
 
         public DateTime AddedDate { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? AcknowledgedDate { get; set; }
+        public DateTime? DoneDate { get; set; }
         public string? Notes { get; set; }
 
         // Lines now include the name of each item (e.g. "Bottle Warmer")

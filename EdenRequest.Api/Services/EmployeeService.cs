@@ -11,6 +11,7 @@ namespace EdenRequest.Api.Services
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
         Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto);
         Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role);
+        Task<EmployeeDto> GetEmployeeGenericDataById(int id);
     }
     public class EmployeeService: IEmployeeService  
     {
@@ -77,6 +78,21 @@ namespace EdenRequest.Api.Services
         public Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role)
         {
             return _employeeRepository.GetEmployeesByRoleAsync(role);
+        }
+
+        public async Task<EmployeeDto> GetEmployeeGenericDataById(int id)
+        {
+            var request = await _employeeRepository.GetEmployeeById(id);
+            if (request == null) return null;
+            return new EmployeeDto
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Role = request.Role,
+                Email = request.Email
+
+
+            };
         }
     }
 }
