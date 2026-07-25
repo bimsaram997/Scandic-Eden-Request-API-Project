@@ -1,4 +1,5 @@
 ﻿using EdenRequest.Api.DTO;
+using EdenRequest.Api.DTOs;
 using EdenRequest.Api.Repositories;
 
 namespace EdenRequest.Api.Services
@@ -6,6 +7,7 @@ namespace EdenRequest.Api.Services
     public interface IReportsService
     {
         Task<HousekeeperReportDto> GetHousekeeperReportAsync(int housekeeperId);
+        Task<TeamLeaderReportDto> GetTeamLeaderReportAsync();
     }
 
     public class ReportsService : IReportsService
@@ -108,5 +110,116 @@ namespace EdenRequest.Api.Services
                 TodayTaskLog = todayLogs
             };
         }
+        public async Task<TeamLeaderReportDto> GetTeamLeaderReportAsync()
+        {
+            var todayUtc = DateTime.UtcNow.Date;
+
+            // Fetch last 30 days of data for leaderboard & item totals
+            var thirtyDaysAgo = todayUtc.AddDays(-30);
+
+            var allSupplies = await _reportsRepository.GetAllSuppliesAsync(thirtyDaysAgo);
+            var allExtraWork = await _reportsRepository.GetAllExtraWorkAsync(thirtyDaysAgo);
+
+            // 1. TODAY'S KPIS
+            var suppliesToday = allSupplies.Where(s => s.CreatedAt >= todayUtc).ToList();
+            var extraWorkToday = allExtraWork.Where(e => e.AddedDate >= todayUtc).ToList();
+
+            int totalExtraWorkToday = extraWorkToday.Count;
+            int completedExtraWorkToday = extraWorkToday.Count(e => e.Status == "Done");
+            int totalSuppliesToday = suppliesToday.Count;
+
+            var activeStaffIds = suppliesToday.Select(s => s.EmployeeId)
+                .Union(extraWorkToday.Select(e => e.AssignedToId))
+                .Where(id => id > 0)
+                .Distinct()
+                .Count();
+
+            // Setup speed average
+            var completedTasksToday = extraWorkToday
+                .Where(e => e.Status == "Done" && e.DoneDate.HasValue)
+                .ToList();
+
+            double avgSpeed = completedTasksToday.Any()
+                ? completedTasksToday.Average(e => (e.DoneDate!.Value - e.AddedDate).TotalMinutes)
+                : 0;
+
+            // 2. STAFF PERFORMANCE LEADERBOARD (LAST 30 DAYS)
+            var topStaffPerformance = allExtraWork
+           .Where(e => e.AssignedTo != null)
+           .GroupBy(e => new { e.AssignedToId, e.AssignedTo!.Name })
+           .Select(g => new HousekeeperPerformanceDto
+           {
+               HousekeeperId = g.Key.AssignedToId,
+               HousekeeperName = g.Key.Name,
+               CompletedExtraWork = g.Count(e => e.Status == "Done"),
+               RequestedSupplies = allSupplies.Count(s => s.EmployeeId == g.Key.AssignedToId)
+           })
+           .OrderByDescending(p => p.CompletedExtraWork)
+           .ThenByDescending(p => p.RequestedSupplies)
+           .Take(10) // 👈 Strictly caps leaderboard to Top 10
+           .ToList();
+
+            // 3. TOP REQUESTED ITEMS (SUPPLIES CONSUMPTION)
+            var topItems = allSupplies
+                .SelectMany(s => s.Lines)
+                .Where(l => l.Item != null)
+                .GroupBy(l => l.Item!.Name)
+                .Select(g => new TopRequestedItemDto
+                {
+                    ItemName = g.Key,
+                    TotalQuantity = g.Sum(l => l.Quantity)
+                })
+                .OrderByDescending(i => i.TotalQuantity)
+                .Take(5)
+                .ToList();
+
+            // 4. MASTER AUDIT LOG (TODAY)
+            var extraWorkLogs = extraWorkToday.Select(e => new MasterTaskLogDto
+            {
+                Id = e.Id,
+                RoomNumber = e.RoomNumber,
+                Category = "Extra Work",
+                AssignedToOrRequestedBy = e.AssignedTo?.Name ?? "Unassigned",
+                Details = e.ExtraRequestLine.Any()
+                    ? string.Join(", ", e.ExtraRequestLine.Select(l => $"{l.Quantity}x {l.ExtraWorkItem?.Name ?? "Item"}"))
+                    : (e.Notes ?? "Extra Bed Setup"),
+                Status = e.Status,
+                Timestamp = e.DoneDate ?? e.AddedDate
+            }).ToList();
+
+            var supplyLogs = suppliesToday.Select(s => new MasterTaskLogDto
+            {
+                Id = s.Id,
+                RoomNumber = s.RoomNumber ?? "General",
+                Category = "Supply Request",
+                AssignedToOrRequestedBy = s.Employee?.Name ?? "Housekeeper",
+                Details = s.Lines.Any()
+                    ? string.Join(", ", s.Lines.Select(l => $"{l.Quantity} {l.UnitType} {l.Item?.Name ?? "Item"}"))
+                    : "Supply Order",
+                Status = s.Status,
+                Timestamp = s.CreatedAt
+            }).ToList();
+
+            var masterLog = extraWorkLogs
+                .Concat(supplyLogs)
+                .OrderByDescending(x => x.Timestamp)
+                .ToList();
+
+            return new TeamLeaderReportDto
+            {
+                Kpis = new TeamLeaderKpiDto
+                {
+                    TotalExtraWorkToday = totalExtraWorkToday,
+                    CompletedExtraWorkToday = completedExtraWorkToday,
+                    TotalSupplyRequestsToday = totalSuppliesToday,
+                    AvgFulfillmentSpeedMinutes = Math.Round(avgSpeed, 1),
+                    ActiveHousekeepersCount = activeStaffIds
+                },
+                StaffPerformance = topStaffPerformance,
+                TopItems = topItems,
+                MasterTaskLog = masterLog
+            };
+        }
+
     }
 }
