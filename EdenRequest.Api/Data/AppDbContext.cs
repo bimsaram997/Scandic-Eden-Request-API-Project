@@ -18,6 +18,8 @@ namespace EdenRequest.Api.Data
         public DbSet<ExtraWorkItem> ExtraWorkItems { get; set; } = null!;
         public DbSet<ExtraWorkRequest> ExtraWorkRequests { get; set; } = null!;
         public DbSet<ExtraRequestLine> ExtraRequestLines { get; set; } = null!;
+        public DbSet<ExtraDirtyReport> ExtraDirtyReports { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

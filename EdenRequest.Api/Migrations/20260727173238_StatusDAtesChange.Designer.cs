@@ -3,6 +3,7 @@ using System;
 using EdenRequest.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdenRequest.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727173238_StatusDAtesChange")]
+    partial class StatusDAtesChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,8 +119,6 @@ namespace EdenRequest.Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ReportedById");
 
                     b.ToTable("ExtraDirtyReports");
                 });
@@ -403,17 +404,6 @@ namespace EdenRequest.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("EdenRequest.Api.Data.ExtraDirtyReport", b =>
-                {
-                    b.HasOne("EdenRequest.Api.Data.Employee", "ReportedBy")
-                        .WithMany()
-                        .HasForeignKey("ReportedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ReportedBy");
                 });
 
             modelBuilder.Entity("EdenRequest.Api.Data.ExtraRequestLine", b =>
