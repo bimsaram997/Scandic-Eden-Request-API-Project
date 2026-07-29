@@ -42,6 +42,8 @@ builder.Services.AddScoped<IExtraWorkItemService, ExtraWorkItemService>();
 
 builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
 builder.Services.AddScoped<IReportsService, ReportsService>();
+builder.Services.AddScoped<IExtraDirtyReportRepository, ExtraDirtyReportRepository>();
+builder.Services.AddScoped<IExtraDirtyReportService, ExtraDirtyReportService>();
 
 
 builder.Services.AddScoped<NotificationService>();
