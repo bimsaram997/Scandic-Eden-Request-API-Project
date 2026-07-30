@@ -20,16 +20,37 @@ namespace EdenRequest.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromForm] CreateExtraDirtyReportDto dto)
         {
-            // Fallback manual read from Request.Form for WebKit/iOS edge cases
-            if (dto.ReportedById == 0 && Request.Form.TryGetValue("reportedById", out var rawReportedBy))
+            if (Request.HasFormContentType)
             {
-                int.TryParse(rawReportedBy.FirstOrDefault(), out int parsedId);
-                dto.ReportedById = parsedId;
+                var form = await Request.ReadFormAsync();
+
+                // 1. Resolve ReportedById
+                if (dto.ReportedById == 0)
+                {
+                    var rawReportedBy = form["reportedById"].ToString() ?? form["ReportedById"].ToString();
+                    if (int.TryParse(rawReportedBy, out int parsedId) && parsedId > 0)
+                    {
+                        dto.ReportedById = parsedId;
+                    }
+                }
+
+                // 2. Resolve RoomNumber
+                if (string.IsNullOrWhiteSpace(dto.RoomNumber))
+                {
+                    var rawRoom = form["roomNumber"].ToString() ?? form["RoomNumber"].ToString();
+                    if (!string.IsNullOrWhiteSpace(rawRoom))
+                    {
+                        dto.RoomNumber = rawRoom;
+                    }
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(dto.RoomNumber) && Request.Form.TryGetValue("roomNumber", out var rawRoom))
+            // Console logging to verify on server logs
+            Console.WriteLine($"[iOS Payload Inspection] Room: '{dto.RoomNumber}', EmployeeId: {dto.ReportedById}");
+
+            if (dto.ReportedById <= 0)
             {
-                dto.RoomNumber = rawRoom.FirstOrDefault() ?? string.Empty;
+                return BadRequest(new { message = "Invalid or missing ReportedById." });
             }
 
             try
