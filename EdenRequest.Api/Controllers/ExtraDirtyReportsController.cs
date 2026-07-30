@@ -24,33 +24,27 @@ namespace EdenRequest.Api.Controllers
             {
                 var form = await Request.ReadFormAsync();
 
-                // 1. Resolve ReportedById
+                if (string.IsNullOrWhiteSpace(dto.RoomNumber))
+                {
+                    dto.RoomNumber = form["roomNumber"].ToString()
+                                  ?? form["RoomNumber"].ToString()
+                                  ?? string.Empty;
+                }
+
                 if (dto.ReportedById == 0)
                 {
-                    var rawReportedBy = form["reportedById"].ToString() ?? form["ReportedById"].ToString();
-                    if (int.TryParse(rawReportedBy, out int parsedId) && parsedId > 0)
+                    var rawId = form["reportedById"].ToString() ?? form["ReportedById"].ToString();
+                    if (int.TryParse(rawId, out int parsedId))
                     {
                         dto.ReportedById = parsedId;
                     }
                 }
-
-                // 2. Resolve RoomNumber
-                if (string.IsNullOrWhiteSpace(dto.RoomNumber))
-                {
-                    var rawRoom = form["roomNumber"].ToString() ?? form["RoomNumber"].ToString();
-                    if (!string.IsNullOrWhiteSpace(rawRoom))
-                    {
-                        dto.RoomNumber = rawRoom;
-                    }
-                }
             }
 
-            // Console logging to verify on server logs
-            Console.WriteLine($"[iOS Payload Inspection] Room: '{dto.RoomNumber}', EmployeeId: {dto.ReportedById}");
-
-            if (dto.ReportedById <= 0)
+            // Explicit validation check
+            if (string.IsNullOrWhiteSpace(dto.RoomNumber))
             {
-                return BadRequest(new { message = "Invalid or missing ReportedById." });
+                return BadRequest(new { RoomNumber = new[] { "The RoomNumber field is required." } });
             }
 
             try
