@@ -20,26 +20,26 @@ namespace EdenRequest.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromForm] CreateExtraDirtyReportDto dto)
         {
-            if (!ModelState.IsValid)
+            // Fallback manual read from Request.Form for WebKit/iOS edge cases
+            if (dto.ReportedById == 0 && Request.Form.TryGetValue("reportedById", out var rawReportedBy))
             {
-                return BadRequest(ModelState);
+                int.TryParse(rawReportedBy.FirstOrDefault(), out int parsedId);
+                dto.ReportedById = parsedId;
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.RoomNumber) && Request.Form.TryGetValue("roomNumber", out var rawRoom))
+            {
+                dto.RoomNumber = rawRoom.FirstOrDefault() ?? string.Empty;
             }
 
             try
             {
                 var result = await _service.CreateReportAsync(dto);
-                return Ok(new
-                {
-                    message = "Extra dirty report submitted successfully!",
-                    reportId = result.Id,
-                    uploadedFilesCount = result.MediaFiles?.Count ?? 0
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                // 💡 UNWRAP INNER EXCEPTION: Shows the exact database constraint or column error
-                var realErrorMessage = ex.GetBaseException().Message;
-                return StatusCode(500, new { message = realErrorMessage });
+                return StatusCode(500, new { message = ex.GetBaseException().Message });
             }
         }
 
