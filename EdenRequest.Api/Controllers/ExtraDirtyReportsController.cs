@@ -25,10 +25,10 @@ namespace EdenRequest.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (dto.Files == null || dto.Files.Count == 0)
-            {
-                return BadRequest(new { message = "At least one photos or video evidence is required." });
-            }
+            //if (dto.Files == null || dto.Files.Count == 0)
+            //{
+            //    return BadRequest(new { message = "At least one photos or video evidence is required." });
+            //}
 
             try
             {
