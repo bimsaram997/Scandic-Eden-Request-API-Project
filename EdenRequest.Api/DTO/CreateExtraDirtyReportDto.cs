@@ -10,7 +10,7 @@ namespace EdenRequest.Api.DTOs
 
         public string? Notes { get; set; }
 
-        [Required]
+      
         public List<IFormFile> Files { get; set; } = new List<IFormFile>();
     }
 }
