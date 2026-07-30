@@ -27,7 +27,7 @@ namespace EdenRequest.Api.Controllers
 
             if (dto.Files == null || dto.Files.Count == 0)
             {
-                return BadRequest(new { message = "At least one photo or video evidence is required." });
+                return BadRequest(new { message = "At least one photos or video evidence is required." });
             }
 
             try
