@@ -25,11 +25,6 @@ namespace EdenRequest.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            //if (dto.Files == null || dto.Files.Count == 0)
-            //{
-            //    return BadRequest(new { message = "At least one photos or video evidence is required." });
-            //}
-
             try
             {
                 var result = await _service.CreateReportAsync(dto);
@@ -37,12 +32,14 @@ namespace EdenRequest.Api.Controllers
                 {
                     message = "Extra dirty report submitted successfully!",
                     reportId = result.Id,
-                    uploadedFilesCount = result.MediaFiles.Count
+                    uploadedFilesCount = result.MediaFiles?.Count ?? 0
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                // 💡 UNWRAP INNER EXCEPTION: Shows the exact database constraint or column error
+                var realErrorMessage = ex.GetBaseException().Message;
+                return StatusCode(500, new { message = realErrorMessage });
             }
         }
 
