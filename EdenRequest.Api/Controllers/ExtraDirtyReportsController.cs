@@ -21,7 +21,7 @@ namespace EdenRequest.Api.Controllers
         public async Task<IActionResult> CreateReport([FromForm] CreateExtraDirtyReportDto dto)
         {
             // This WILL execute now!
-            Console.WriteLine($"Room: {dto.RoomNumber}, Reporter: {dto.ReportedById}");
+            Console.Error.WriteLine($"===> REQUEST HIT CONTROLLER! Room: '{dto.RoomNumber}', User: {dto.ReportedById}");
 
             try
             {

@@ -2,6 +2,7 @@ using EdenRequest.Api.Data;
 using EdenRequest.Api.Hubs;
 using EdenRequest.Api.Repositories;
 using EdenRequest.Api.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,10 @@ builder.Services.AddCors(options =>
               .AllowCredentials()
               .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); //  Tells Firefox to cache the approval for 10 minutes
     });
+});
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddSignalR();
