@@ -32,7 +32,8 @@ namespace EdenRequest.Api.Controllers
         }
 
         [HttpPost("{reportId:int}/media")]
-        public async Task<IActionResult> UploadMedia(int reportId, [FromForm] List<IFormFile> files)
+        [Consumes("multipart/form-data")] // Enforces multipart boundary parsing
+        public async Task<IActionResult> UploadMedia(int reportId, [FromForm(Name = "files")] List<IFormFile> files)
         {
             if (files == null || files.Count == 0)
             {
