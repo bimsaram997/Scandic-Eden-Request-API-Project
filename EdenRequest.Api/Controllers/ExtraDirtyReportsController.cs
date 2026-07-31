@@ -20,32 +20,8 @@ namespace EdenRequest.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateReport([FromForm] CreateExtraDirtyReportDto dto)
         {
-            if (Request.HasFormContentType)
-            {
-                var form = await Request.ReadFormAsync();
-
-                if (string.IsNullOrWhiteSpace(dto.RoomNumber))
-                {
-                    dto.RoomNumber = form["roomNumber"].ToString()
-                                  ?? form["RoomNumber"].ToString()
-                                  ?? string.Empty;
-                }
-
-                if (dto.ReportedById == 0)
-                {
-                    var rawId = form["reportedById"].ToString() ?? form["ReportedById"].ToString();
-                    if (int.TryParse(rawId, out int parsedId))
-                    {
-                        dto.ReportedById = parsedId;
-                    }
-                }
-            }
-
-            // Explicit validation check
-            if (string.IsNullOrWhiteSpace(dto.RoomNumber))
-            {
-                return BadRequest(new { RoomNumber = new[] { "The RoomNumber field is required." } });
-            }
+            // This WILL execute now!
+            Console.WriteLine($"Room: {dto.RoomNumber}, Reporter: {dto.ReportedById}");
 
             try
             {
