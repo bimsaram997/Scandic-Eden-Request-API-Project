@@ -8,6 +8,7 @@ namespace EdenRequest.Api.Repositories
     public interface IExtraDirtyReportRepository
     {
         Task<ExtraDirtyReport> AddReportAsync(ExtraDirtyReport report);
+        Task AddMediaFilesAsync(IEnumerable<MediaFile> mediaFiles);
         Task<ExtraDirtyReport?> GetByIdAsync(int id);
         Task<PagedResponse<ExtraDirtyReport>> GetPagedReportsAsync(AllExtraDirtyQueryDto filters);
     }
@@ -25,6 +26,12 @@ namespace EdenRequest.Api.Repositories
             await _context.ExtraDirtyReports.AddAsync(report);
             await _context.SaveChangesAsync();
             return report;
+        }
+
+        public async Task AddMediaFilesAsync(IEnumerable<MediaFile> mediaFiles)
+        {
+            await _context.MediaFiles.AddRangeAsync(mediaFiles);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ExtraDirtyReport?> GetByIdAsync(int id)

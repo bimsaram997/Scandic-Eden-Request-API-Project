@@ -17,22 +17,40 @@ namespace EdenRequest.Api.Controllers
             _service = service;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateReport([FromForm] CreateExtraDirtyReportDto dto)
+        [HttpPost("metadata")]
+        public async Task<IActionResult> CreateReportMetadata([FromBody] CreateReportMetadataDto dto)
         {
-            // This WILL execute now!
-            Console.Error.WriteLine($"===> REQUEST HIT CONTROLLER! Room: '{dto.RoomNumber}', User: {dto.ReportedById}");
-
             try
             {
-                var result = await _service.CreateReportAsync(dto);
-                return Ok(result);
+                int reportId = await _service.CreateReportMetadataAsync(dto);
+                return Ok(new { reportId = reportId, message = "Report metadata created successfully." });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.GetBaseException().Message });
             }
         }
+
+        [HttpPost("{reportId:int}/media")]
+        public async Task<IActionResult> UploadMedia(int reportId, [FromForm] List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0)
+            {
+                return BadRequest(new { message = "At least one media file is required." });
+            }
+
+            try
+            {
+                await _service.AttachMediaToReportAsync(reportId, files);
+                return Ok(new { message = "Media uploaded successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.GetBaseException().Message });
+            }
+        }
+
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ExtraDirtyReportDto))]

@@ -10,7 +10,8 @@ namespace EdenRequest.Api.Services
 {
     public interface IExtraDirtyReportService
     {
-        Task<ExtraDirtyReport> CreateReportAsync(CreateExtraDirtyReportDto dto);
+        Task<int> CreateReportMetadataAsync(CreateReportMetadataDto dto);
+        Task AttachMediaToReportAsync(int reportId, List<IFormFile> files);
         Task<ExtraDirtyReportDto?> GetReportByIdAsync(int id);
         Task<PagedResponse<ExtraDirtyReportDto>> GetAllReportsAsync(AllExtraDirtyQueryDto filters);
     }
@@ -37,77 +38,90 @@ namespace EdenRequest.Api.Services
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<ExtraDirtyReport> CreateReportAsync(CreateExtraDirtyReportDto dto)
+        public async Task<int> CreateReportMetadataAsync(CreateReportMetadataDto dto)
         {
-            // 💡 Verify Employee ID exists in DB, fallback to ID 1 (Mika) if not found
             var validEmployeeId = dto.ReportedById;
             var employeeExists = await _context.Employees.AnyAsync(e => e.Id == validEmployeeId);
 
             if (!employeeExists)
             {
-                validEmployeeId = 1; // Fallback to Mika (Cleaner) so foreign key constraint never fails
-            }
-
-            var mediaFiles = new List<MediaFile>();
-
-            if (dto.Files != null && dto.Files.Count > 0)
-            {
-                foreach (var file in dto.Files)
-                {
-                    if (file.Length == 0) continue;
-
-                    using var stream = file.OpenReadStream();
-
-                    bool isVideo = file.ContentType.StartsWith("video/") ||
-                                   file.FileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
-                                   file.FileName.EndsWith(".mov", StringComparison.OrdinalIgnoreCase);
-
-                    RawUploadResult uploadResult;
-
-                    if (isVideo)
-                    {
-                        var uploadParams = new VideoUploadParams
-                        {
-                            File = new FileDescription(file.FileName, stream),
-                            Folder = "extra-dirty-reports/videos"
-                        };
-                        uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                    }
-                    else
-                    {
-                        var uploadParams = new ImageUploadParams
-                        {
-                            File = new FileDescription(file.FileName, stream),
-                            Folder = "extra-dirty-reports/images"
-                        };
-                        uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                    }
-
-                    if (uploadResult.Error != null)
-                    {
-                        throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
-                    }
-
-                    mediaFiles.Add(new MediaFile
-                    {
-                        Url = uploadResult.SecureUrl.ToString(),
-                        PublicId = uploadResult.PublicId,
-                        MediaType = isVideo ? "video" : "image"
-                    });
-                }
+                validEmployeeId = 1; // Fallback to Mika (Cleaner) if ID invalid
             }
 
             var report = new ExtraDirtyReport
             {
                 RoomNumber = dto.RoomNumber,
-                ReportedById = validEmployeeId, // Guaranteed to exist in Employees table
+                ReportedById = validEmployeeId,
                 Notes = dto.Notes,
                 CreatedAt = DateTime.UtcNow,
-                MediaFiles = mediaFiles
+                MediaFiles = new List<MediaFile>()
             };
 
-            return await _repository.AddReportAsync(report);
+            var createdReport = await _repository.AddReportAsync(report);
+            return createdReport.Id;
         }
+
+        public async Task AttachMediaToReportAsync(int reportId, List<IFormFile> files)
+        {
+            var report = await _repository.GetByIdAsync(reportId);
+            if (report == null)
+            {
+                throw new KeyNotFoundException($"Extra dirty report with ID {reportId} was not found.");
+            }
+
+            var mediaFiles = new List<MediaFile>();
+
+            foreach (var file in files)
+            {
+                if (file.Length == 0) continue;
+
+                using var stream = file.OpenReadStream();
+
+                bool isVideo = file.ContentType.StartsWith("video/") ||
+                               file.FileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                               file.FileName.EndsWith(".mov", StringComparison.OrdinalIgnoreCase);
+
+                RawUploadResult uploadResult;
+
+                if (isVideo)
+                {
+                    var uploadParams = new VideoUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        Folder = "extra-dirty-reports/videos"
+                    };
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                }
+                else
+                {
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        Folder = "extra-dirty-reports/images"
+                    };
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                }
+
+                if (uploadResult.Error != null)
+                {
+                    throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                }
+
+                mediaFiles.Add(new MediaFile
+                {
+                    ExtraDirtyReportId = reportId,
+                    Url = uploadResult.SecureUrl.ToString(),
+                    PublicId = uploadResult.PublicId,
+                    MediaType = isVideo ? "video" : "image"
+                });
+            }
+
+            if (mediaFiles.Count > 0)
+            {
+                await _repository.AddMediaFilesAsync(mediaFiles);
+            }
+        }
+
 
         public async Task<ExtraDirtyReportDto?> GetReportByIdAsync(int id)
         {
