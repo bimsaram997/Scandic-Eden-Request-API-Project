@@ -32,7 +32,9 @@ namespace EdenRequest.Api.Controllers
         }
 
         [HttpPost("{reportId:int}/media")]
-        [Consumes("multipart/form-data")] // Enforces multipart boundary parsing
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(100 * 1024 * 1024)] // Allow up to 100MB for mobile uploads
+        [RequestFormLimits(MultipartBodyLengthLimit = 100 * 1024 * 1024)]
         public async Task<IActionResult> UploadMedia(int reportId, [FromForm(Name = "files")] List<IFormFile> files)
         {
             if (files == null || files.Count == 0)
@@ -50,7 +52,6 @@ namespace EdenRequest.Api.Controllers
                 return StatusCode(500, new { message = ex.GetBaseException().Message });
             }
         }
-
 
 
         [HttpGet("{id}")]
