@@ -18,7 +18,7 @@ namespace EdenRequest.Api.Data
         public int Id { get; set; }
         public string Url { get; set; } = string.Empty;
         public string PublicId { get; set; } = string.Empty;
-        public string MediaType { get; set; } = string.Empty; // "image" or "video"
+        public string MediaType { get; set; } = string.Empty; 
         public int ExtraDirtyReportId { get; set; }
     }
 }

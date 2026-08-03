@@ -28,7 +28,7 @@ namespace EdenRequest.Api.Services
                 employee.PushAuth
             );
 
-            // 🟢 Dynamics options read directly from your appsettings configuration layers
+           
             var vapidSubject = _configuration["VapidDetails:Subject"] ?? "mailto:admin@edenapp.com";
             var publicVapidKey = "BM_zv_20Wct-5d_mzZQvOH61AN1laP6ZEIHZ9i7IB6eBPVhbl4U8KzFG_qTggrjfUMoc-5dPJ9d-12QeUQibmvE";
             var privateVapidKey = "pGUcYJFgd39O7jufYJjdlldcX5C3vf-6yPtkKJ0riHk";

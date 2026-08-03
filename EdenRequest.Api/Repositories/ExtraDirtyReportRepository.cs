@@ -45,11 +45,8 @@ namespace EdenRequest.Api.Repositories
         public async Task<PagedResponse<ExtraDirtyReport>> GetPagedReportsAsync(AllExtraDirtyQueryDto filters)
         {
             var query = _context.ExtraDirtyReports.AsQueryable();
-
-            // 1. Role / User Filters
             if (!filters.IsTeamLeader)
             {
-                // Regular Employee: ALWAYS restrict to their own records
                 if (filters.ReportedById.HasValue)
                 {
                     query = query.Where(r => r.ReportedById == filters.ReportedById.Value);
@@ -57,14 +54,13 @@ namespace EdenRequest.Api.Repositories
             }
             else
             {
-                // Team Leader: OPTIONALLY filter by selected employee if provided
                 if (filters.ReportedById.HasValue)
                 {
                     query = query.Where(r => r.ReportedById == filters.ReportedById.Value);
                 }
-                // If ReportedById is null, it skips the filter and returns ALL records
+                
             }
-            // 2. Room Number Filter
+   
             if (!string.IsNullOrEmpty(filters.RoomNumber))
             {
                 query = query.Where(r => r.RoomNumber == filters.RoomNumber);

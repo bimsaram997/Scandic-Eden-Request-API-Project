@@ -42,9 +42,7 @@ namespace EdenRequest.Api.Services
             };
 
             var savedRequest = await _extraWorkRequestRepository.CreateBulkAsync(newRequest);
-
             var resultDto = await GetRequestByIdAsync(newRequest.Id);
-
             return resultDto ?? throw new Exception("Error retrieving the newly created extra work request.");
 
 

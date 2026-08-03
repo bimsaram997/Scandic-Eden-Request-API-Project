@@ -7,11 +7,9 @@
         public int ListNumber { get; set; }
         public string Status { get; set; } = string.Empty;
         public int RequestedById { get; set; }
-        public string RequestedByEmployee { get; set; } = string.Empty; // e.g. "John Doe"
-
+        public string RequestedByEmployee { get; set; } = string.Empty; 
         public int AssignedToId { get; set; }
-        public string AssignedToEmployee { get; set; } = "Unassigned"; // e.g. "Jane Smith"
-
+        public string AssignedToEmployee { get; set; } = "Unassigned"; 
         public int? UpdatedById { get; set; }
         public string UpdatedByEmployee { get; set; } = "N/A";
 
@@ -19,8 +17,6 @@
         public DateTime? AcknowledgedDate { get; set; }
         public DateTime? DoneDate { get; set; }
         public string? Notes { get; set; }
-
-        // Lines now include the name of each item (e.g. "Bottle Warmer")
         public List<ExtraRequestLineDto> Lines { get; set; } = new();
     }
 
@@ -28,7 +24,7 @@
     {
         public int Id { get; set; }
         public int ExtraWorkItemId { get; set; }
-        public string ExtraWorkItemName { get; set; } = string.Empty; // Displays "Kettle", "Heater", etc.
+        public string ExtraWorkItemName { get; set; } = string.Empty; 
         public int Quantity { get; set; }
     }
 }

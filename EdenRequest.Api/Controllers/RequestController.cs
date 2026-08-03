@@ -47,14 +47,12 @@ namespace EdenRequest.Api.Controllers
                     });
                 try
                 {
-                    // Database-level filtering via your custom method
+                   
                     var targetLeaders = await _employeeService.GetEmployeesByRoleAsync("TeamLeader");
 
                     foreach (var leader in targetLeaders)
                     {
                         if (string.IsNullOrEmpty(leader.Email)) continue;
-
-                        // Check if this leader's email is actively tracked in our live SignalR dictionary
                         bool isCurrentlyOnline = EdenRequest.Api.Hubs.NotificationHub.ActiveUsers.ContainsKey(leader.Email.ToLower().Trim());
 
                         if (isCurrentlyOnline)
@@ -74,7 +72,6 @@ namespace EdenRequest.Api.Controllers
                 }
                 catch (Exception pushEx)
                 {
-                    // Gracefully catch background push flaws so the database record return remains unbothered
                     return NotFound(pushEx.Message);
                 }
 
@@ -89,13 +86,12 @@ namespace EdenRequest.Api.Controllers
         [HttpPost("getAll")]
         public async Task<IActionResult> GetAllRequests([FromBody] RequestFilterDto filter)
         {
-            // For now, we accept the empty filter and just fetch the active requests
             var requests = await _requestService.GetAllRequestsAsync();
             return Ok(requests);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id) // Change 'int' to 'Guid' or 'string' if your IDs use a different type
+        public async Task<IActionResult> GetById(int id) 
         {
             var request = await _requestService.GetRequestByIdAsync(id);
 
@@ -112,22 +108,16 @@ namespace EdenRequest.Api.Controllers
         {
             try
             {
-                // 🟢 1. Fetch the request directly BEFORE updating it
                 var originalRequest = await _requestService.GetRequestByIdAsync(id);
                 int originalHousekeeperId = originalRequest?.EmployeeId ?? 0;
 
-                // 2. Perform the actual status change
                 var updated = await _requestService.ChangeStatusAsync(id, payload);
-
-                // 🟢 3. Use the originalHousekeeperId instead of updated.EmployeeId
                 if (updated != null && originalHousekeeperId > 0)
                 {
-                    // Fetch the original creator's data profile
                     var employee = await _employeeService.GetEmployeeById(originalHousekeeperId);
 
                     if (employee != null && !string.IsNullOrEmpty(employee.Email))
                     {
-                        // Target the specific housekeeper group by cleaning up their email string
                         string cleanEmail = employee.Email.Replace("@", "_").Replace(".", "_");
                         string housekeeperChannel = $"User_{cleanEmail}";
 
@@ -159,7 +149,6 @@ namespace EdenRequest.Api.Controllers
                         }
                         catch (WebPush.WebPushException webPushEx)
                         {
-                            // 🚨 This prevents the API from crashing and tells you EXACTLY why the push failed
                             Console.WriteLine($"[WebPush Exception] Status: {webPushEx.StatusCode} | Reason: {webPushEx.Message}");
                         }
                         catch (Exception pushEx)
@@ -185,7 +174,6 @@ namespace EdenRequest.Api.Controllers
         [HttpPost("employee/{employeeId}/history")]
         public async Task<IActionResult> GetHistory(int employeeId, [FromQuery] bool isTeamLeader, [FromBody] HistoryQueryDto query)
         {
-            // 1. Fallback protection if the body mapping object initializes as null
             if (query == null)
             {
                 query = new HistoryQueryDto { Page = 1, PageSize = 6 };
@@ -193,7 +181,6 @@ namespace EdenRequest.Api.Controllers
 
             try
             {
-                //  Pass the logged-in user context, the role flag, and the ENTIRE filter object down!
                 var response = await _requestService.GetEmployeeHistoryAsync(employeeId, isTeamLeader, query);
 
                 return Ok(response);

@@ -5,7 +5,7 @@
     {
         public int Id { get; set; }
         public string RoomNumber { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty; // "Extra Work" or "Supply Request"
+        public string Category { get; set; } = string.Empty; 
         public string AssignedToOrRequestedBy { get; set; } = string.Empty;
         public string Details { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;

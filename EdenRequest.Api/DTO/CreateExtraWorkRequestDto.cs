@@ -7,8 +7,6 @@
         public int RequestedById { get; set; }
         public int AssignedToId { get; set; }
         public string? Notes { get; set; }
-
-        // This receives the list of items along with their specific quantities
         public List<CreateExtraRequestLineDto> Lines { get; set; } = new();
     }
 

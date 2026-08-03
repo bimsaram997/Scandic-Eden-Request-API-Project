@@ -7,9 +7,8 @@
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
-        public string Role { get; set; } = "Housekeeper"; // Housekeeper, TeamLeader
+        public string Role { get; set; } = "Housekeeper"; 
 
-        //  columns for Push Notifications
         public string? PushEndpoint { get; set; }
         public string? PushP256DH { get; set; }
         public string? PushAuth { get; set; }

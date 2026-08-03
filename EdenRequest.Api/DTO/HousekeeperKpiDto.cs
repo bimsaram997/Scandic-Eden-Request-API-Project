@@ -1,8 +1,5 @@
 ﻿namespace EdenRequest.Api.DTO
 {
-    /// <summary>
-    /// High-level KPI summary metrics for the active shift
-    /// </summary>
     public class HousekeeperKpiDto
     {
         public int ExtraWorkCompletedToday { get; set; }

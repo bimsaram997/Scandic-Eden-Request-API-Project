@@ -7,8 +7,6 @@ namespace EdenRequest.Api.Repositories
     {
         Task<List<RequestHeader>> GetHousekeeperSuppliesAsync(int housekeeperId);
         Task<List<ExtraWorkRequest>> GetHousekeeperExtraWorkAsync(int housekeeperId);
-
-        //  NEW TEAM LEADER REPOSITORY METHODS
         Task<List<RequestHeader>> GetAllSuppliesAsync(DateTime startDate);
         Task<List<ExtraWorkRequest>> GetAllExtraWorkAsync(DateTime startDate);
     }
@@ -39,7 +37,6 @@ namespace EdenRequest.Api.Repositories
                 .ToListAsync();
         }
 
-        //  TEAM LEADER IMPLEMENTATION
         public async Task<List<RequestHeader>> GetAllSuppliesAsync(DateTime startDate)
         {
             return await _context.RequestHeaders

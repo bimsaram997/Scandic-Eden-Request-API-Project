@@ -33,7 +33,7 @@ namespace EdenRequest.Api.Controllers
 
         [HttpPost("{reportId:int}/media")]
         [Consumes("multipart/form-data")]
-        [RequestSizeLimit(100 * 1024 * 1024)] // Allow up to 100MB for mobile uploads
+        [RequestSizeLimit(100 * 1024 * 1024)] 
         [RequestFormLimits(MultipartBodyLengthLimit = 100 * 1024 * 1024)]
         public async Task<IActionResult> UploadMedia(int reportId, [FromForm(Name = "files")] List<IFormFile> files)
         {

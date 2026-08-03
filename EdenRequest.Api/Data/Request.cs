@@ -7,24 +7,15 @@ namespace EdenRequest.Api.Data
     {
         public int Id { get; set; }
         public string? RoomNumber { get; set; }
-        //public bool IsGeneralRequest = false;
         public bool CheckGeneralRequest { get; set; } = false;
-
         public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
-        // 🚀 Change this: Keep the Foreign Key ID, but give it a clear name
         public int? UpdatedById { get; set; }
-
-        // 🚀 Add this: The real navigation object relationship for EF Core!
         public Employee? UpdatedBy { get; set; }
-
-        // New Tracking Audit Properties (OOP Relationships)
         public int EmployeeId { get; set; }
         public Employee? Employee { get; set; }
-
-        public int RoomListId { get; set; } // The active shift list ID used by the worker
-
+        public int RoomListId { get; set; } 
         public List<RequestLine> Lines { get; set; } = new();
         public string? Notes { get; set; }
     }
@@ -39,6 +30,6 @@ namespace EdenRequest.Api.Data
         public Item? Item { get; set; }
 
         public int Quantity { get; set; }
-        public string UnitType { get; set; } = "Pcs"; // "Pcs" or "Trolley"
+        public string UnitType { get; set; } = "Pcs"; 
     }
 }

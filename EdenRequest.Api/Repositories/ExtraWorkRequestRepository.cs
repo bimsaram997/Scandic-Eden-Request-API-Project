@@ -51,7 +51,7 @@ namespace EdenRequest.Api.Repositories
                 query = query.Where(h => h.AssignedToId == filters.AssignedToId.Value);
             }
 
-            // 1. Core Field Filters
+        
             if (filters.RoomNumber != null)
             {
                 query = query.Where(r => r.RoomNumber == filters.RoomNumber);
@@ -79,33 +79,23 @@ namespace EdenRequest.Api.Repositories
                 query = query.Where(r => r.ListNumber == filters.listNumber.Value);
             }
 
-            // 2. Today vs. Past Timezone-Aware Query Boundaries
-            // 1. Get current time strictly in UTC
+          
             DateTime utcNow = DateTime.UtcNow;
-
-            // 2. Convert it to your local time (+3 Hours) to see what day it is for you
             DateTime localTime = utcNow.AddHours(3);
-
-            // 3. Get the start of your local today (00:00:00)
             DateTime localStartOfToday = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0);
-
-            // 4. Shift local midnight back to UTC (-3 Hours) and mark it explicitly as Utc Kind
             DateTime utcTodayStart = DateTime.SpecifyKind(localStartOfToday.AddHours(-3), DateTimeKind.Utc);
 
             if (filters.IsToday)
             {
-                // TODAY: Fetch items with timestamps starting from local midnight UTC boundary
                 query = query.Where(r => r.AddedDate >= utcTodayStart);
             }
             else
             {
-                // 🟢 FIX: Only apply the default "exclude today" rule if the user DID NOT send a custom date range!
                 if (!filters.FromDate.HasValue && !filters.ToDate.HasValue)
                 {
                     query = query.Where(r => r.AddedDate < utcTodayStart);
                 }
 
-                // Apply custom history filters if sent from the frontend
                 if (filters.FromDate.HasValue)
                 {
                     string dateStr = filters.FromDate.Value.ToString("yyyy-MM-dd");
@@ -113,7 +103,7 @@ namespace EdenRequest.Api.Repositories
                     string localIso = $"{dateStr}T{timeStr}:00";
 
                     DateTime localStart = DateTime.Parse(localIso);
-                    DateTime utcFrom = localStart.AddHours(-3); // Adjust to your local time zone offset
+                    DateTime utcFrom = localStart.AddHours(-3); 
                     utcFrom = DateTime.SpecifyKind(utcFrom, DateTimeKind.Utc);
 
                     query = query.Where(h => h.AddedDate >= utcFrom);
@@ -129,7 +119,7 @@ namespace EdenRequest.Api.Repositories
                         : $"{dateStr}T{timeStr}";
 
                     DateTime localEnd = DateTime.Parse(localIso);
-                    DateTime utcTo = localEnd.AddHours(-3); // Adjust to your local time zone offset
+                    DateTime utcTo = localEnd.AddHours(-3); 
                     utcTo = DateTime.SpecifyKind(utcTo, DateTimeKind.Utc);
 
                     query = query.Where(h => h.AddedDate <= utcTo);
@@ -170,7 +160,6 @@ namespace EdenRequest.Api.Repositories
                 // Explicitly subtract your +3 Hour local offset here as well
                 DateTime utcTo = localEnd.AddHours(-3);
                 utcTo = DateTime.SpecifyKind(utcTo, DateTimeKind.Utc);
-
                 query = query.Where(h => h.AddedDate <= utcTo);
             }
 

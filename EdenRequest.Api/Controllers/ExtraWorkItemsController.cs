@@ -19,7 +19,7 @@ namespace EdenRequest.Api.Controllers
             _extraWorkItemService = extraWorkItemService;
         }
 
-        // 🔍 GET: api/ExtraWorkItems
+   
         [HttpGet("getAll")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ExtraWorkItemDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -36,7 +36,6 @@ namespace EdenRequest.Api.Controllers
             }
         }
 
-        // 🔍 GET: api/ExtraWorkItems/{id}
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ExtraWorkItemDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -58,7 +57,6 @@ namespace EdenRequest.Api.Controllers
             }
         }
 
-        //  POST: api/ExtraWorkItems
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ExtraWorkItemDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,14 +83,14 @@ namespace EdenRequest.Api.Controllers
             }
         }
 
-        //  PUT: api/ExtraWorkItems/{id}
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateExtraWorkDto dto)
         {
-            // Defensive check to ensure the URL parameter matches the payload identifier
+   
             if (id != dto.Id)
             {
                 return BadRequest(new { message = "The route ID variation does not match the payload ID identity." });

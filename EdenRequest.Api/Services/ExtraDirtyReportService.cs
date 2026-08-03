@@ -19,12 +19,12 @@ namespace EdenRequest.Api.Services
     public class ExtraDirtyReportService : IExtraDirtyReportService
     {
         private readonly IExtraDirtyReportRepository _repository;
-        private readonly AppDbContext _context; // 💡 Injected AppDbContext
+        private readonly AppDbContext _context; 
         private readonly Cloudinary _cloudinary;
 
         public ExtraDirtyReportService(
             IExtraDirtyReportRepository repository,
-            AppDbContext context, // 💡 Pass AppDbContext
+            AppDbContext context, 
             IConfiguration configuration)
         {
             _repository = repository;
@@ -45,7 +45,7 @@ namespace EdenRequest.Api.Services
 
             if (!employeeExists)
             {
-                validEmployeeId = 1; // Fallback to Mika (Cleaner) if ID invalid
+                validEmployeeId = 1; 
             }
 
             var report = new ExtraDirtyReport

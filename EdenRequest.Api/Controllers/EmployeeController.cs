@@ -12,7 +12,6 @@ namespace EdenRequest.Api.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-
         public EmployeeController(IEmployeeService employeeService)
         {
             _employeeService = employeeService;
@@ -20,7 +19,7 @@ namespace EdenRequest.Api.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetEmployeeByEmailAndPassword([FromBody] LoginRequestModel request) // 🚀 FromBody!
+        public async Task<IActionResult> GetEmployeeByEmailAndPassword([FromBody] LoginRequestModel request) 
         {
             try
             {

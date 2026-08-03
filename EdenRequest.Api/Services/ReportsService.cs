@@ -47,9 +47,8 @@ namespace EdenRequest.Api.Services
                 ? completedTasks.Average(e => (e.DoneDate!.Value - e.AddedDate).TotalMinutes)
                 : 0;
 
-            // ----------------------------------------------------
+
             // 2. WEEKLY TREND (LAST 7 DAYS)
-            // ----------------------------------------------------
             var weeklyTrend = new List<WeeklyTrendDto>();
             for (int i = 0; i < 7; i++)
             {
@@ -156,7 +155,7 @@ namespace EdenRequest.Api.Services
            })
            .OrderByDescending(p => p.CompletedExtraWork)
            .ThenByDescending(p => p.RequestedSupplies)
-           .Take(10) // 👈 Strictly caps leaderboard to Top 10
+           .Take(10) // Strictly caps leaderboard to Top 10
            .ToList();
 
             // 3. TOP REQUESTED ITEMS (SUPPLIES CONSUMPTION)

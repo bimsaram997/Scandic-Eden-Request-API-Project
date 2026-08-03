@@ -5,7 +5,7 @@
     /// </summary>
     public class WeeklyTrendDto
     {
-        public string DayName { get; set; } = string.Empty; // e.g., "Mon", "Tue"
+        public string DayName { get; set; } = string.Empty; 
         public int SuppliesRequested { get; set; }
         public int ExtraWorkCompleted { get; set; }
     }

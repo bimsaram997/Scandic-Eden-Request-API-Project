@@ -38,7 +38,7 @@ namespace EdenRequest.Api.Repositories
         .Select(e => new EmployeeDto
         {
             Id = e.Id,
-            Name = e.Name, // Adjust property name if it's FirstName/LastName in your DB
+            Name = e.Name, 
             Email = e.Email,
             Role = e.Role
         })

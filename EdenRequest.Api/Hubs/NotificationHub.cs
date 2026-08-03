@@ -5,7 +5,7 @@ namespace EdenRequest.Api.Hubs
 {
     public class NotificationHub: Hub
     {
-        // 🚀 A thread-safe lookup map: Email -> Set of Active Connection IDs
+        // A thread-safe lookup map: Email -> Set of Active Connection IDs
         public static readonly ConcurrentDictionary<string, HashSet<string>> ActiveUsers =
             new ConcurrentDictionary<string, HashSet<string>>();
 
@@ -32,7 +32,7 @@ namespace EdenRequest.Api.Hubs
             }
         }
 
-        // 🧹 Automatically clean up tracking when a user disconnects
+        // Automatically clean up tracking when a user disconnects
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             // Scan our tracking dictionary to remove this specific ConnectionId
@@ -44,7 +44,6 @@ namespace EdenRequest.Api.Hubs
                     if (connections.Contains(Context.ConnectionId))
                     {
                         connections.Remove(Context.ConnectionId);
-
                         // If that was the user's only open tab, remove them from the online map entirely
                         if (connections.Count == 0)
                         {

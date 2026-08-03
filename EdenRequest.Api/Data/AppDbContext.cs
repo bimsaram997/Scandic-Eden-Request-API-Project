@@ -25,14 +25,14 @@ namespace EdenRequest.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed initial categories
+           
             modelBuilder.Entity<ItemCategory>().HasData(
                 new ItemCategory { Id = 1, Name = "Linen" },
                 new ItemCategory { Id = 2, Name = "Glasses" },
                 new ItemCategory { Id = 3, Name = "Amenities" }
             );
 
-            // Seed employees
+         
             modelBuilder.Entity<Employee>().HasData(
                 new Employee { Id = 1, Name = "Mika (Cleaner)", Email = "mike@gmail.com", Password = "123", Role = "Housekeeper" },
                 new Employee { Id = 2, Name = "James (Cleaner)", Email = "James@gmail.com", Password = "123", Role = "Housekeeper" },
@@ -46,14 +46,14 @@ namespace EdenRequest.Api.Data
                 .HasForeignKey(l => l.RequestHeaderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 💡 Explicit Foreign Key Mapping for ExtraDirtyReport -> Employee
+           
             modelBuilder.Entity<ExtraDirtyReport>()
                 .HasOne(r => r.ReportedBy)
                 .WithMany()
                 .HasForeignKey(r => r.ReportedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 💡 One-to-Many Relationship: ExtraDirtyReport -> MediaFiles
+           
             modelBuilder.Entity<ExtraDirtyReport>()
                 .HasMany(r => r.MediaFiles)
                 .WithOne()

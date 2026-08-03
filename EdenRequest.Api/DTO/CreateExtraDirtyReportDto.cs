@@ -5,11 +5,11 @@ using System.ComponentModel.DataAnnotations;
 public class CreateExtraDirtyReportDto
 {
     [Required(ErrorMessage = "Room number is required.")]
-    [FromForm(Name = "roomNumber")] // <--- Explicitly maps Angular's 'roomNumber'
+    [FromForm(Name = "roomNumber")] 
     public string RoomNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "ReportedById is required.")]
-    [FromForm(Name = "reportedById")] // <--- Explicitly maps Angular's 'reportedById'
+    [FromForm(Name = "reportedById")] 
     public int ReportedById { get; set; }
 
     [FromForm(Name = "notes")]

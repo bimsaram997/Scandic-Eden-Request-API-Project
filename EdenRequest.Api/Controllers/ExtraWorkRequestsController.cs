@@ -18,7 +18,6 @@ namespace EdenRequest.Api.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly NotificationService _notificationService;
 
-        // Inject the SignalR Hub context and employee/notification infrastructure services
         public ExtraWorkRequestsController(
             IExtraWorkRequestService extraWorkRequestService,
             IHubContext<NotificationHub> hubContext,
@@ -31,7 +30,6 @@ namespace EdenRequest.Api.Controllers
             _notificationService = notificationService;
         }
 
-        // GET: api/ExtraWorkRequests/{id}
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ExtraWorkRequestDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,7 +45,7 @@ namespace EdenRequest.Api.Controllers
             return Ok(result);
         }
 
-        // POST: api/ExtraWorkRequests/createExtraWorkRequest
+      
         [HttpPost("createExtraWorkRequest")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ExtraWorkRequestDto))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,11 +58,7 @@ namespace EdenRequest.Api.Controllers
 
             try
             {
-                // 1. Persist the new extra work request inside the database
                 var createdDto = await _extraWorkRequestService.CreateRequestAsync(dto);
-
-                // 2. Safely process real-time and push alerts to the assigned Housekeeper
-                // Ensure there is an explicit housekeeper assigned (AssignedToId is greater than 0)
                 if (createdDto != null && createdDto.AssignedToId > 0)
                 {
                     try
@@ -73,7 +67,6 @@ namespace EdenRequest.Api.Controllers
 
                         if (employee != null && !string.IsNullOrEmpty(employee.Email))
                         {
-                            // 🟢 A. Route Live SignalR Update Group Event
                             string cleanEmail = employee.Email.Replace("@", "_").Replace(".", "_");
                             string housekeeperChannel = $"User_{cleanEmail}";
 
@@ -86,7 +79,6 @@ namespace EdenRequest.Api.Controllers
                                     notes = createdDto.Notes
                                 });
 
-                            // 🟢 B. Dispatch Web Push Notification (If user has valid active device profile endpoints)
                             if (!string.IsNullOrEmpty(employee.PushEndpoint))
                             {
                                 string pushTitle = "🧹 New Extra Work Assigned!";
@@ -104,8 +96,6 @@ namespace EdenRequest.Api.Controllers
                     }
                     catch (Exception alertEx)
                     {
-                        // Wrap inside a nested catch so a notification transmission failure 
-                        // never blocks the 201 Created database state return payload
                         Console.WriteLine($"Background alert dispatching encountered an error: {alertEx.Message}");
                     }
                 }
@@ -143,8 +133,6 @@ namespace EdenRequest.Api.Controllers
 
                 var employee = await _employeeService.GetEmployeeById(updated.AssignedToId);
                 string senderEmail = employee?.Email ?? "Unknown Housekeeper";
-
-                // 🟢 A. Live SignalR Broadcast
                 try
                 {
                     await _hubContext.Clients.Group("ActiveLeadersDashboard")
@@ -161,8 +149,6 @@ namespace EdenRequest.Api.Controllers
                 {
                     Console.WriteLine($"SignalR live update failed: {sigEx.Message}");
                 }
-
-                // 🟢 B. Target Push Notifications
                 try
                 {
                     var targetLeaders = await _employeeService.GetEmployeesByRoleAsync("TeamLeader");
@@ -173,11 +159,8 @@ namespace EdenRequest.Api.Controllers
                         {
                             try
                             {
-                                // 🔥 CRITICAL FIX: Explicitly fetch a FRESH instance of this leader 
-                                // from the DB by their ID to ensure the newly synced PushEndpoint is loaded!
+                                
                                 var leader = await _employeeService.GetEmployeeById(baseLeader.Id);
-
-                                // Fallback check to look at both lowercase/uppercase variations if your DTO maps fields dynamically
                                 if (leader != null && (!string.IsNullOrEmpty(leader.PushEndpoint)))
                                 {
                                     string pushTitle = "🚨 Extra Work Request is Updated!";

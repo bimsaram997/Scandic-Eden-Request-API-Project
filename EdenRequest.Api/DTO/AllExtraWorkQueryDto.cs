@@ -11,11 +11,7 @@
         public string? Status { get; set; }
         public int? listNumber { get; set; }
         public List<int> ExtraItemIds { get; set; } = new();
-
-        //The toggle flag from your frontend
         public bool IsToday { get; set; } = true;
-
-        // Optional: Keep these in case you want custom range searches in the "Past" view
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string? FromTime { get; set; }

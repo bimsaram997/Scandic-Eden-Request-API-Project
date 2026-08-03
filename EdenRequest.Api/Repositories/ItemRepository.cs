@@ -28,7 +28,7 @@ namespace EdenRequest.Api.Repositories
         public async Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId)
         {
             return await _context.Items
-        .Include(i => i.Category) // Optional: Loads category details automatically
+        .Include(i => i.Category) 
         .Where(i => i.ItemCategoryId == categoryId)
         .ToListAsync();
         }
