@@ -31,8 +31,7 @@ namespace EdenRequest.Api.Repositories
 
         public async Task<IEnumerable<RequestHeader>> GetAllRequetsAsync()
         {
-            // Eagerly loading Employee and Items in one round-trip to the database
-
+           
             return await _context.RequestHeaders
             .Include(h => h.Employee)
             .Include(h => h.Lines)
@@ -43,10 +42,10 @@ namespace EdenRequest.Api.Repositories
 
         public async Task<RequestHeader?> GetByIdAsync(int id)
         {
-            // Eagerly loading Employee, Lines, Items, and Categories for a single record match
+            
             return await _context.RequestHeaders
          .Include(h => h.Employee)
-         .Include(h => h.UpdatedBy) // 🚀 This will work perfectly now!
+         .Include(h => h.UpdatedBy) 
          .Include(h => h.Lines)
              .ThenInclude(l => l.Item)
                  .ThenInclude(i => i!.Category)
@@ -57,48 +56,44 @@ namespace EdenRequest.Api.Repositories
         {
             var query = _context.RequestHeaders.AsQueryable();
 
-            //  Role Guard: Housekeepers only see their own requests. Team Leaders can see everyone's.
             if (!isTeamLeader)
             {
                 query = query.Where(h => h.EmployeeId == employeeId);
             }
             else if (filters.TargetEmployeeId.HasValue)
             {
-                // Team leader selected a specific housekeeper from the dropdown name list
                 query = query.Where(h => h.EmployeeId == filters.TargetEmployeeId.Value);
             }
 
-            // Filter by exact List ID matching
+            if (filters.RequestedById.HasValue)
+            { 
+                query = query.Where(h => h.EmployeeId == filters.RequestedById.Value);
+            }
+
             if (filters.RoomListId.HasValue)
             {
                 query = query.Where(h => h.RoomListId == filters.RoomListId.Value);
             }
 
-            //  Filter by Category (Checks if any material line item matches the Category ID)
             if (filters.CategoryId.HasValue)
             {
                 query = query.Where(h => h.Lines.Any(l => l.Item.ItemCategoryId == filters.CategoryId.Value));
             }
 
-            //  Filter by Specific Item ID Selection
             if (filters.ItemIds != null && filters.ItemIds.Any())
             {
                 query = query.Where(h => h.Lines.Any(l => filters.ItemIds.Contains(l.ItemId)));
             }
 
-            // Existing structural filters
             if (!string.IsNullOrEmpty(filters.RoomSearch))
             {
                 query = query.Where(h => h.RoomNumber.Contains(filters.RoomSearch));
             }
             if (!string.IsNullOrEmpty(filters.Status) && !filters.Status.Equals("All", StringComparison.OrdinalIgnoreCase))
             {
-                // Since your database handles strings, a direct match works perfectly in SQL
                 query = query.Where(h => h.Status == filters.Status);
             }
 
-
-            //  Combined Date & Time Timezone-Aware Parser (PostgreSQL ISO Native)
             if (filters.FromDate.HasValue)
             {
                 // Extract the raw string date component: "2026-06-26"

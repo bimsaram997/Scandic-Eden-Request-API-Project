@@ -11,6 +11,7 @@ namespace EdenRequest.Api.Services
         Task<IEnumerable<EmployeeDto>> GetAllEmployeeAsync();
         Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto);
         Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role);
+        Task<EmployeeDto> GetEmployeeGenericDataById(int id);
     }
     public class EmployeeService: IEmployeeService  
     {
@@ -44,16 +45,13 @@ namespace EdenRequest.Api.Services
 
         public async Task<bool> SavePushTokenAsync(int employeeId, PushSubscriptionDto dto)
         {
-            //  Fetch the employee row through the repository layer
             var employee = await _employeeRepository.GetEmployeeById(employeeId);
             if (employee == null) return false;
 
-            // Find if another employee record is holding onto this browser token
             if (!string.IsNullOrEmpty(dto.PushEndpoint))
             {
                 var previousDeviceOwner = await _employeeRepository.GetEmployeeByPushEndpointAsync(dto.PushEndpoint);
 
-                // If a ghost session (like the Team Leader) left their token here, wipe it and save them first
                 if (previousDeviceOwner != null && previousDeviceOwner.Id != employeeId)
                 {
                     previousDeviceOwner.PushEndpoint = null;
@@ -64,12 +62,9 @@ namespace EdenRequest.Api.Services
                 }
             }
 
-            // 2. Apply business logic data mapping changes for the current logger
             employee.PushEndpoint = dto.PushEndpoint;
             employee.PushP256DH = dto.PushP256DH;
             employee.PushAuth = dto.PushAuth;
-
-            // 3. Commit back down through the repository
             await _employeeRepository.UpdateAsync(employee);
             return true;
         }
@@ -77,6 +72,21 @@ namespace EdenRequest.Api.Services
         public Task<IEnumerable<Employee>> GetEmployeesByRoleAsync(string role)
         {
             return _employeeRepository.GetEmployeesByRoleAsync(role);
+        }
+
+        public async Task<EmployeeDto> GetEmployeeGenericDataById(int id)
+        {
+            var request = await _employeeRepository.GetEmployeeById(id);
+            if (request == null) return null;
+            return new EmployeeDto
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Role = request.Role,
+                Email = request.Email
+
+
+            };
         }
     }
 }

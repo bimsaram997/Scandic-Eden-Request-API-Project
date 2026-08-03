@@ -2,6 +2,7 @@ using EdenRequest.Api.Data;
 using EdenRequest.Api.Hubs;
 using EdenRequest.Api.Repositories;
 using EdenRequest.Api.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,12 +17,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularClientPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200", "https://eden-request-frontend-dev-0oip.onrender.com")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
               .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); //  Tells Firefox to cache the approval for 10 minutes
     });
+});
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddSignalR();
@@ -35,6 +40,16 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IItemCategoryRepository, ItemCategoryRepository>();
 builder.Services.AddScoped<IitemCategoryService, itemCategoryService>();
+builder.Services.AddScoped<IExtraWorkRequestRepository, ExtraWorkRequestRepository>();
+builder.Services.AddScoped<IExtraWorkRequestService, ExtraWorkRequestService>();
+builder.Services.AddScoped<IExtraWorkItemRepository, ExtraWorkItemRepository>();
+builder.Services.AddScoped<IExtraWorkItemService, ExtraWorkItemService>();
+
+builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
+builder.Services.AddScoped<IReportsService, ReportsService>();
+builder.Services.AddScoped<IExtraDirtyReportRepository, ExtraDirtyReportRepository>();
+builder.Services.AddScoped<IExtraDirtyReportService, ExtraDirtyReportService>();
+
 
 builder.Services.AddScoped<NotificationService>();
 
@@ -69,5 +84,7 @@ app.MapControllers();
 
 // Map SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
+Console.WriteLine($"\n ENVIRONMENT: {builder.Environment.EnvironmentName}");
+Console.WriteLine($" ACTIVE VAPID PUBLIC KEY: {builder.Configuration["VapidDetails:PublicKey"]}\n");
 
 app.Run();
