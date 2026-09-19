@@ -5,7 +5,6 @@ namespace EdenRequest.Api.Repositories
 {
     public interface IItemCategoryRepository
     {
-        // Define methods for item category operations here
         Task<IEnumerable<ItemCategory>> GetAlItemCategoryAsync();
         Task<ItemCategory?> GetCategoryByIdAsync(int categoryId);
     }

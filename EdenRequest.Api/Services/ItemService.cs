@@ -21,7 +21,6 @@ namespace EdenRequest.Api.Services
 
         public async Task<Item> CreateItemAsync(string name, int categoryId)
         {
-            // Validate category exists
             var category = await _itemCategoryRepository.GetCategoryByIdAsync(categoryId);
             if (category == null)
             {
@@ -32,9 +31,7 @@ namespace EdenRequest.Api.Services
             {
                 throw new ArgumentException("Item name cannot be empty.");
             }
-               
-
-            // Create and save the new item
+              
             var newItem = new Item
             {
                 Name = name,

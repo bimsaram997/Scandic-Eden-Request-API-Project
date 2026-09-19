@@ -5,7 +5,6 @@ namespace EdenRequest.Api.Services
 {
     public interface IitemCategoryService
     {
-        // Define methods for item category operations here
         Task<IEnumerable<ItemCategory>> GetAlItemCategoryAsync();
     }
     public class itemCategoryService: IitemCategoryService

@@ -136,7 +136,6 @@ namespace EdenRequest.Api.Services
 
             request.Status = update.Status;
 
-            // 🚀 THE FIX: Target the ID column instead of the navigation entity reference object
             request.UpdatedById = update.UpdatedBy;
 
             request.UpdatedAt = DateTime.UtcNow;
