@@ -1,5 +1,6 @@
 using EdenRequest.Api.Data;
 using EdenRequest.Api.Hubs;
+using EdenRequest.Api.options;
 using EdenRequest.Api.Repositories;
 using EdenRequest.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,12 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+
+builder.Services.Configure<DigitransitOptions>(
+    builder.Configuration.GetSection(DigitransitOptions.Position));
+
+// Add HttpClient for AddressController
+builder.Services.AddHttpClient();
 
 builder.Services.AddSignalR();
 
